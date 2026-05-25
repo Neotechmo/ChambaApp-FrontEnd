@@ -1,0 +1,114 @@
+.client-page-hero {
+  padding: 42px clamp(24px, 6vw, 86px);
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #19b7e8);
+}
+
+.client-page-hero p,
+.client-page-hero h1,
+.client-page-hero span {
+  margin: 0;
+}
+
+.client-page-hero p {
+  color: rgba(255, 255, 255, 0.78);
+  font-weight: 700;
+}
+
+.client-page-hero h1 {
+  margin-top: 6px;
+  font-size: clamp(34px, 5vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.client-page-hero span {
+  display: block;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.client-search-toolbar {
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+}
+
+.client-search-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+
+  background: white;
+}
+
+.client-search-input input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.client-search-toolbar button {
+  border: 0;
+  border-radius: 16px;
+  padding: 14px 18px;
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #7c4dff);
+  font-weight: 900;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.client-search-results {
+  display: grid;
+  gap: 16px;
+}
+
+.client-result-card {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.client-dashboard-layout.dark .client-page-hero {
+  background: linear-gradient(135deg, #4f2ac9, #1570a6);
+}
+
+.client-dashboard-layout.dark .client-search-input {
+  background: #1d1d1d;
+  border-color: #333;
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .client-search-input input {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .client-search-input input::placeholder {
+  color: #8f96a8;
+}
+
+.client-dashboard-layout.dark .client-result-card h3 {
+  color: #f5f5f5;
+}
+
+@media (max-width: 800px) {
+  .client-search-toolbar,
+  .client-result-card {
+    grid-template-columns: 1fr;
+  }
+
+  .client-provider-price {
+    text-align: left;
+  }
+}

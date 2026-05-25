@@ -1,0 +1,145 @@
+.earnings-detail-card {
+  padding: 28px;
+}
+
+.earnings-bars-large {
+  height: 280px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.earnings-bars-large div {
+  flex: 1;
+  text-align: center;
+}
+
+.earnings-bars-large span {
+  display: block;
+  width: 100%;
+  max-width: 54px;
+  margin: 0 auto 10px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(180deg, #19b7e8, #6c3cf0);
+}
+
+.earnings-bars-large strong {
+  display: block;
+  color: #17172f;
+  font-size: 13px;
+}
+
+.earnings-bars-large p {
+  margin: 6px 0 0;
+  color: #667085;
+  font-weight: 800;
+}
+
+.earnings-balance-card {
+  padding: 24px;
+}
+
+.earnings-balance-card h2,
+.earnings-balance-card p {
+  margin: 0;
+}
+
+.earnings-balance-card h2 {
+  font-size: 36px;
+  color: #6c3cf0;
+}
+
+.earnings-balance-card p {
+  margin-top: 8px;
+  color: #667085;
+}
+
+.earnings-balance-card button {
+  width: 100%;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 18px;
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #7c4dff);
+  font-weight: 900;
+}
+
+.transactions-list {
+  display: grid;
+  gap: 14px;
+}
+
+.transaction-card {
+  padding: 18px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.transaction-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #6c3cf0;
+  background: #ede9fe;
+  font-size: 20px;
+}
+
+.transaction-card h3,
+.transaction-card p {
+  margin: 0;
+}
+
+.transaction-card p {
+  margin-top: 4px;
+  color: #667085;
+}
+
+.transaction-card strong {
+  color: #6c3cf0;
+  font-size: 22px;
+}
+
+.transaction-status {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.transaction-status.pagado {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.transaction-status.pendiente {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.provider-layout.dark .earnings-bars-large {
+  border-color: #333;
+}
+
+.provider-layout.dark .earnings-bars-large strong,
+.provider-layout.dark .transaction-card h3 {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .earnings-bars-large p,
+.provider-layout.dark .earnings-balance-card p,
+.provider-layout.dark .transaction-card p {
+  color: #a1a1aa;
+}
+
+@media (max-width: 900px) {
+  .transaction-card {
+    grid-template-columns: 1fr;
+  }
+}

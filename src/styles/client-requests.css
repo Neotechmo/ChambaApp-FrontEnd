@@ -1,0 +1,133 @@
+.client-requests-list {
+  display: grid;
+  gap: 16px;
+}
+
+.client-request-card {
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+}
+
+.client-request-main {
+  display: flex;
+  gap: 16px;
+}
+
+.client-request-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #6c3cf0;
+  background: #ede9fe;
+  font-size: 22px;
+}
+
+.client-request-main h3,
+.client-request-main p {
+  margin: 0;
+}
+
+.client-request-main p {
+  margin-top: 4px;
+  color: #667085;
+  font-weight: 700;
+}
+
+.client-request-side {
+  text-align: right;
+}
+
+.client-request-side strong {
+  display: block;
+  margin-top: 12px;
+  color: #6c3cf0;
+  font-size: 28px;
+}
+
+.client-request-status {
+  display: inline-block;
+  padding: 9px 13px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.client-request-status.active {
+  color: #0ea5e9;
+  background: #e0f7ff;
+}
+
+.client-request-status.completed {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.client-request-status.pending {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.client-request-actions {
+  grid-column: 1 / -1;
+  padding-top: 18px;
+  border-top: 1px solid #e5e7eb;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.danger-job-button {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: white;
+  background: #dc2626;
+  font-weight: 900;
+}
+
+.client-dashboard-layout.dark .client-request-main h3 {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .client-request-main p {
+  color: #a1a1aa;
+}
+
+.client-dashboard-layout.dark .client-request-actions {
+  border-color: #333;
+}
+
+.client-dashboard-layout.dark .client-request-icon {
+  background: #2a2147;
+  color: #c7b8ff;
+}
+
+@media (max-width: 800px) {
+  .client-request-card {
+    grid-template-columns: 1fr;
+  }
+
+  .client-request-side {
+    text-align: left;
+  }
+
+  .client-request-actions {
+    justify-content: stretch;
+    flex-direction: column;
+  }
+
+  .client-request-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}

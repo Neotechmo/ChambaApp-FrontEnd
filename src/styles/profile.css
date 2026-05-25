@@ -1,0 +1,134 @@
+.profile-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.6fr;
+  gap: 20px;
+}
+
+.profile-main-card,
+.profile-info-card,
+.profile-description-card {
+  padding: 26px;
+}
+
+.profile-main-card {
+  text-align: center;
+}
+
+.profile-avatar-large {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 18px;
+  border-radius: 32px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 44px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #6c3cf0, #19b7e8);
+}
+
+.profile-main-card h2,
+.profile-main-card p,
+.profile-info-card h2,
+.profile-description-card h2 {
+  margin: 0;
+}
+
+.profile-main-card p {
+  margin-top: 6px;
+  color: #667085;
+}
+
+.profile-rating {
+  margin: 18px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  color: #f5b301;
+}
+
+.profile-rating span {
+  color: #667085;
+}
+
+.profile-main-card button {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 18px;
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #7c4dff);
+  font-weight: 900;
+}
+
+.profile-info-card {
+  display: grid;
+  gap: 18px;
+}
+
+.profile-info-card div {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.profile-info-card svg {
+  color: #6c3cf0;
+}
+
+.profile-info-card span {
+  color: #667085;
+}
+
+.profile-description-card p {
+  margin: 14px 0 0;
+  color: #667085;
+  line-height: 1.7;
+}
+
+.profile-tags {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-tags span {
+  padding: 9px 13px;
+  border-radius: 999px;
+  color: #6c3cf0;
+  background: #ede9fe;
+  font-weight: 900;
+}
+
+.provider-layout.dark .profile-main-card p,
+.provider-layout.dark .profile-rating span,
+.provider-layout.dark .profile-info-card span,
+.provider-layout.dark .profile-description-card p {
+  color: #a1a1aa;
+}
+
+.provider-layout.dark .profile-info-card div {
+  border-color: #333;
+}
+
+.provider-layout.dark .profile-info-card strong,
+.provider-layout.dark .profile-description-card h2,
+.provider-layout.dark .profile-main-card h2 {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .profile-tags span {
+  background: #2a2147;
+  color: #c7b8ff;
+}
+
+@media (max-width: 900px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+}

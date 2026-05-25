@@ -1,0 +1,67 @@
+/* DARK HERO */
+.provider-layout.dark .provider-hero,
+.client-dashboard-layout.dark .client-dashboard-hero {
+  background: linear-gradient(
+    135deg,
+    #4f2ac9,
+    #1570a6
+  );
+}
+
+.provider-layout.dark .provider-menu button.active,
+.client-dashboard-layout.dark .provider-menu button.active {
+  background: linear-gradient(
+    135deg,
+    #5b34d6,
+    #6b4dff
+  );
+
+  box-shadow: 0 8px 22px rgba(108, 60, 240, 0.18);
+}
+
+.provider-layout.dark .dashboard-card,
+.client-dashboard-layout.dark .dashboard-card {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.provider-layout.dark .verified-card,
+.client-dashboard-layout.dark .verified-card {
+  background: #1d2433;
+  border-color: #334155;
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .verified-card h2,
+.provider-layout.dark .verified-card strong,
+.client-dashboard-layout.dark .verified-card h2,
+.client-dashboard-layout.dark .verified-card strong {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .verified-card p,
+.provider-layout.dark .verified-card span,
+.client-dashboard-layout.dark .verified-card p,
+.client-dashboard-layout.dark .verified-card span {
+  color: #a1a1aa;
+}
+
+.provider-layout.dark .verified-card button,
+.client-dashboard-layout.dark .verified-card button {
+  background: linear-gradient(135deg, #5b34d6, #6b4dff);
+}
+
+.client-dashboard-layout.dark .agenda-item div,
+.provider-layout.dark .agenda-item div {
+  background: #262626;
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .agenda-item strong,
+.provider-layout.dark .agenda-item strong {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .agenda-item p,
+.provider-layout.dark .agenda-item p {
+  color: #a1a1aa;
+}

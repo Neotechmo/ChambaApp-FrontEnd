@@ -1,0 +1,248 @@
+.messages-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+}
+
+.conversations-panel {
+  padding: 18px;
+}
+
+.messages-search {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px 14px;
+  border-radius: 14px;
+
+  background: #f3f4f6;
+}
+
+.messages-search input {
+  width: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+}
+
+.conversation-item {
+  width: 100%;
+  margin-top: 10px;
+  border: 0;
+
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+
+  text-align: left;
+
+  padding: 12px;
+  border-radius: 16px;
+
+  background: transparent;
+}
+
+.conversation-item.active {
+  background: #ede9fe;
+}
+
+.conversation-item strong {
+  display: block;
+}
+
+.conversation-item p,
+.conversation-item span {
+  color: #667085;
+}
+
+.chat-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid #e5e7eb;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-user {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.chat-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-actions button {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 12px;
+  background: #f3f4f6;
+}
+
+.chat-messages {
+  min-height: 420px;
+  padding: 24px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 14px 16px;
+  border-radius: 18px;
+}
+
+.message.received {
+  background: #f3f4f6;
+}
+
+.message.sent {
+  align-self: flex-end;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    #6c3cf0,
+    #7c4dff
+  );
+}
+
+.chat-input {
+  padding: 18px;
+  border-top: 1px solid #e5e7eb;
+
+  display: flex;
+  gap: 12px;
+}
+
+.chat-input input {
+  flex: 1;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  padding: 14px;
+}
+
+.chat-input button {
+  width: 52px;
+
+  border: 0;
+  border-radius: 14px;
+
+  color: white;
+
+  background: linear-gradient(
+    135deg,
+    #6c3cf0,
+    #7c4dff
+  );
+}
+
+.provider-layout.dark .messages-search,
+.provider-layout.dark .chat-actions button,
+.provider-layout.dark .message.received,
+.provider-layout.dark .chat-input input {
+  background: #1d1d1d;
+  color: #f5f5f5;
+  border-color: #333;
+}
+
+.provider-layout.dark .conversation-item.active {
+  background: #2a2147;
+}
+
+.provider-layout.dark .chat-header,
+.provider-layout.dark .chat-input {
+  border-color: #333;
+}
+
+@media (max-width: 1000px) {
+  .messages-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.provider-layout.dark .conversations-panel,
+.provider-layout.dark .chat-panel {
+  background: #1b1b1f;
+  border-color: #333842;
+}
+
+.provider-layout.dark .conversation-item {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .conversation-item strong {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .conversation-item p,
+.provider-layout.dark .conversation-item span {
+  color: #a8b0c2;
+}
+
+.provider-layout.dark .conversation-item.active {
+  background: linear-gradient(135deg, #35245f, #2a2147);
+}
+
+.provider-layout.dark .conversation-item.active p,
+.provider-layout.dark .conversation-item.active span {
+  color: #c7ccef;
+}
+
+.provider-layout.dark .messages-search {
+  background: #24242a;
+  color: #c9ceda;
+}
+
+.provider-layout.dark .messages-search input::placeholder,
+.provider-layout.dark .chat-input input::placeholder {
+  color: #8f96a8;
+}
+
+.provider-layout.dark .chat-header strong,
+.provider-layout.dark .chat-user strong {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .chat-header p,
+.provider-layout.dark .chat-user p {
+  color: #a8b0c2;
+}
+
+.provider-layout.dark .chat-actions button {
+  color: #f5f5f5;
+  background: #25252c;
+}
+
+.provider-layout.dark .message.received {
+  background: #26262d;
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .message.sent {
+  color: #ffffff;
+  background: linear-gradient(135deg, #5b34d6, #7a4dff);
+}
+
+.provider-layout.dark .chat-input {
+  background: #1b1b1f;
+}
+
+.provider-layout.dark .chat-input input {
+  background: #24242a;
+  color: #f5f5f5;
+}

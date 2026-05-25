@@ -1,0 +1,92 @@
+.theme-button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 20;
+
+  width: 56px;
+  height: 56px;
+
+  border: 0;
+  border-radius: 50%;
+
+  display: grid;
+  place-items: center;
+
+  color: white;
+  font-size: 24px;
+  font-weight: 800;
+
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  box-shadow: 0 14px 35px rgba(108, 60, 240, 0.35);
+}
+
+.auth-page,
+.app-shell {
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.auth-page.dark {
+  --background: #111111;
+  --card: #1d1d1d;
+  --text: #f5f5f5;
+  --muted: #a1a1aa;
+  --border: #333333;
+
+  background:
+    radial-gradient(circle at top left, rgba(108, 60, 240, 0.16), transparent 36%),
+    radial-gradient(circle at bottom right, rgba(18, 181, 203, 0.12), transparent 34%),
+    var(--background);
+
+  color: var(--text);
+}
+
+.app-shell.dark {
+  --background: #111111;
+  --card: #1d1d1d;
+  --text: #f5f5f5;
+  --muted: #a1a1aa;
+  --border: #333333;
+
+  background: var(--background);
+  color: var(--text);
+}
+
+.dark .auth-card,
+.dark .search-card,
+.dark .category-card,
+.dark .service-card,
+.dark .empty-card {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.dark .form label {
+  color: #d4d4d8;
+}
+
+.dark .form input,
+.dark .form select,
+.dark .search-card input {
+  background: #242424;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.dark .form input::placeholder,
+.dark .search-card input::placeholder {
+  color: #8b8b93;
+}
+
+.dark .muted,
+.dark .service-card p,
+.dark .empty-card {
+  color: var(--muted);
+}
+
+.dark .status-message {
+  background: #2a1515;
+  border-color: #5f2727;
+  color: #ffb4ab;
+}

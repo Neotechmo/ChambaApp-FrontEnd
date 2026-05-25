@@ -1,0 +1,169 @@
+.provider-requests-page {
+  min-height: 100vh;
+  padding: 42px;
+  background: #f4f6fb;
+}
+
+.requests-header {
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.requests-header p,
+.requests-header h1 {
+  margin: 0;
+}
+
+.requests-header p {
+  color: #667085;
+}
+
+.requests-header h1 {
+  font-size: 42px;
+  letter-spacing: -0.04em;
+}
+
+.requests-header button {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 20px;
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #19b7e8);
+  font-weight: 800;
+}
+
+.requests-list {
+  display: grid;
+  gap: 18px;
+}
+
+.request-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  padding: 26px;
+  background: white;
+  box-shadow: 0 12px 30px rgba(17, 24, 39, 0.05);
+}
+
+.request-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.request-user {
+  display: flex;
+  gap: 18px;
+}
+
+.request-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 26px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #6c3cf0, #19b7e8);
+}
+
+.request-user h2,
+.request-user p {
+  margin: 0;
+}
+
+.request-user h2 {
+  font-size: 28px;
+}
+
+.request-user p {
+  margin-top: 4px;
+  color: #667085;
+}
+
+.request-meta {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #667085;
+  font-size: 14px;
+}
+
+.request-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.priority-pill {
+  height: fit-content;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.priority-pill.urgente {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.priority-pill.normal {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.priority-pill.flexible {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.request-bottom {
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.request-bottom strong {
+  color: #6c3cf0;
+  font-size: 40px;
+}
+
+.request-bottom span {
+  color: #667085;
+}
+
+.request-actions {
+  display: flex;
+  gap: 14px;
+}
+
+.reject-btn,
+.accept-btn {
+  border: 0;
+  border-radius: 14px;
+  padding: 14px 20px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 800;
+}
+
+.reject-btn {
+  background: #f3f4f6;
+}
+
+.accept-btn {
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #7c4dff);
+}

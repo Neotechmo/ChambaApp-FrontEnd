@@ -1,0 +1,81 @@
+.client-dashboard-layout.dark .conversations-panel,
+.client-dashboard-layout.dark .chat-panel {
+  background: #1b1b1f;
+  border-color: #333842;
+}
+
+.client-dashboard-layout.dark .conversation-item {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .conversation-item strong {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .conversation-item p,
+.client-dashboard-layout.dark .conversation-item span {
+  color: #a8b0c2;
+}
+
+.client-dashboard-layout.dark .conversation-item.active {
+  background: linear-gradient(135deg, #35245f, #2a2147);
+}
+
+.client-dashboard-layout.dark .conversation-item.active p,
+.client-dashboard-layout.dark .conversation-item.active span {
+  color: #c7ccef;
+}
+
+.client-dashboard-layout.dark .messages-search {
+  background: #24242a;
+  color: #c9ceda;
+}
+
+.client-dashboard-layout.dark .messages-search input {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .messages-search input::placeholder,
+.client-dashboard-layout.dark .chat-input input::placeholder {
+  color: #8f96a8;
+}
+
+.client-dashboard-layout.dark .chat-header strong,
+.client-dashboard-layout.dark .chat-user strong {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .chat-header p,
+.client-dashboard-layout.dark .chat-user p {
+  color: #a8b0c2;
+}
+
+.client-dashboard-layout.dark .chat-actions button {
+  color: #f5f5f5;
+  background: #25252c;
+}
+
+.client-dashboard-layout.dark .message.received {
+  background: #26262d;
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .message.sent {
+  color: #ffffff;
+  background: linear-gradient(135deg, #5b34d6, #7a4dff);
+}
+
+.client-dashboard-layout.dark .chat-header,
+.client-dashboard-layout.dark .chat-input {
+  border-color: #333;
+}
+
+.client-dashboard-layout.dark .chat-input {
+  background: #1b1b1f;
+}
+
+.client-dashboard-layout.dark .chat-input input {
+  background: #24242a;
+  color: #f5f5f5;
+  border-color: #333;
+}

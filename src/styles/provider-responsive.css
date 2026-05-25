@@ -1,0 +1,82 @@
+.provider-layout.dark {
+  background: #111111;
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .provider-sidebar,
+.provider-layout.dark .dashboard-card {
+  background: #1d1d1d;
+  border-color: #333;
+}
+
+.provider-layout.dark .provider-menu button {
+  color: #c4c4cc;
+}
+
+.provider-layout.dark .provider-menu button.active {
+  color: white;
+}
+
+.provider-layout.dark .request-top small,
+.provider-layout.dark .stat-card-pro p,
+.provider-layout.dark .agenda-item span,
+.provider-layout.dark .job-card p,
+.provider-layout.dark .job-card span,
+.provider-layout.dark .bars p,
+.provider-layout.dark .earnings-summary p {
+  color: #a1a1aa;
+}
+
+.provider-layout.dark .agenda-item div {
+  background: #262626;
+}
+
+.provider-layout.dark .reject-button {
+  color: #f5f5f5;
+  background: #1d1d1d;
+  border-color: #333;
+}
+
+@media (max-width: 1100px) {
+  .provider-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .provider-sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .stats-grid,
+  .provider-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .provider-hero-top,
+  .pending-banner,
+  .request-bottom {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .provider-actions,
+  .request-bottom div {
+    flex-wrap: wrap;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.menu-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-item-left svg {
+  font-size: 18px;
+}

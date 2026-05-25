@@ -1,0 +1,50 @@
+.favorite-card {
+  position: relative;
+}
+
+.favorite-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.favorite-remove-button {
+  width: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: #dc2626 !important;
+}
+
+.empty-state-card {
+  padding: 42px;
+  text-align: center;
+}
+
+.empty-state-card svg {
+  font-size: 42px;
+  color: #6c3cf0;
+}
+
+.empty-state-card h2,
+.empty-state-card p {
+  margin: 0;
+}
+
+.empty-state-card h2 {
+  margin-top: 14px;
+}
+
+.empty-state-card p {
+  margin-top: 8px;
+  color: #667085;
+}
+
+.client-dashboard-layout.dark .empty-state-card h2 {
+  color: #f5f5f5;
+}
+
+.client-dashboard-layout.dark .empty-state-card p {
+  color: #a1a1aa;
+}

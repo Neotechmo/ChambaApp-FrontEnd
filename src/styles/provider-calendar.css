@@ -1,0 +1,133 @@
+.provider-calendar-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 34px;
+}
+
+.calendar-day-card,
+.calendar-summary-card {
+  padding: 26px;
+}
+
+.calendar-day-card {
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #19b7e8);
+  border: 0;
+}
+
+.calendar-day-card span,
+.calendar-day-card p {
+  margin: 0;
+  opacity: 0.86;
+}
+
+.calendar-day-card strong {
+  display: block;
+  margin: 8px 0;
+  font-size: 52px;
+  line-height: 1;
+}
+
+.calendar-summary-card h2,
+.calendar-summary-card p {
+  margin: 0;
+}
+
+.calendar-summary-card h2 {
+  color: #6c3cf0;
+  font-size: 42px;
+}
+
+.calendar-summary-card p {
+  margin-top: 8px;
+  color: #17172f;
+  font-weight: 900;
+}
+
+.calendar-summary-card span {
+  display: inline-block;
+  margin-top: 8px;
+  color: #667085;
+}
+
+.calendar-timeline {
+  display: grid;
+  gap: 16px;
+}
+
+.calendar-event-card {
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 110px 1fr auto;
+  gap: 20px;
+  align-items: center;
+}
+
+.calendar-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6c3cf0;
+  font-size: 18px;
+}
+
+.calendar-event-info h3,
+.calendar-event-info p {
+  margin: 0;
+}
+
+.calendar-event-info h3 {
+  font-size: 22px;
+}
+
+.calendar-event-info p {
+  margin-top: 6px;
+  color: #667085;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-status {
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.calendar-status.confirmado {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.calendar-status.en-curso {
+  color: #0ea5e9;
+  background: #e0f7ff;
+}
+
+.calendar-status.pendiente {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.provider-layout.dark .calendar-summary-card p,
+.provider-layout.dark .calendar-event-info h3 {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .calendar-summary-card span,
+.provider-layout.dark .calendar-event-info p {
+  color: #a1a1aa;
+}
+
+.provider-layout.dark .calendar-day-card {
+  background: linear-gradient(135deg, #4f2ac9, #1570a6);
+}
+
+@media (max-width: 900px) {
+  .provider-calendar-grid,
+  .calendar-event-card {
+    grid-template-columns: 1fr;
+  }
+}

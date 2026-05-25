@@ -1,0 +1,141 @@
+.provider-jobs-list {
+  display: grid;
+  gap: 18px;
+}
+
+.provider-job-card {
+  padding: 24px;
+}
+
+.provider-job-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.job-status {
+  height: fit-content;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.job-status.trabajando {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.job-status.en-camino {
+  color: #0ea5e9;
+  background: #e0f7ff;
+}
+
+.job-status.pendiente {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.job-progress-area {
+  margin-top: 24px;
+}
+
+.job-progress-top {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #667085;
+  font-weight: 800;
+}
+
+.job-progress-top strong {
+  color: #17172f;
+}
+
+.provider-job-footer {
+  margin-top: 24px;
+  padding-top: 22px;
+  border-top: 1px solid #e5e7eb;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.provider-job-footer > div:first-child strong {
+  color: #6c3cf0;
+  font-size: 32px;
+}
+
+.provider-job-footer > div:first-child span {
+  color: #667085;
+}
+
+.provider-job-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.outline-job-button,
+.solid-job-button {
+  border-radius: 14px;
+  padding: 13px 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-weight: 900;
+}
+
+.outline-job-button {
+  border: 1px solid #e5e7eb;
+  color: #17172f;
+  background: white;
+}
+
+.solid-job-button {
+  border: 0;
+  color: white;
+  background: linear-gradient(135deg, #6c3cf0, #7c4dff);
+}
+
+.provider-layout.dark .job-progress-top,
+.provider-layout.dark .provider-job-footer > div:first-child span {
+  color: #a1a1aa;
+}
+
+.provider-layout.dark .job-progress-top strong {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .provider-job-footer {
+  border-color: #333;
+}
+
+.provider-layout.dark .outline-job-button {
+  color: #f5f5f5;
+  background: #1d1d1d;
+  border-color: #333;
+}
+
+@media (max-width: 900px) {
+  .provider-job-header,
+  .provider-job-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .provider-job-actions {
+    flex-direction: column;
+  }
+
+  .provider-job-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
