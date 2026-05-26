@@ -46,6 +46,7 @@
 .provider-menu {
   display: grid;
   gap: 8px;
+  overflow-y: auto;
 }
 
 .provider-menu button {

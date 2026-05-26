@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   FiMapPin,
   FiClock,
@@ -5,55 +6,48 @@ import {
   FiX,
   FiRefreshCw,
   FiFilter,
+  FiCalendar,
 } from 'react-icons/fi'
+import { providerApi } from '../../services/api.js'
+import { addressText, dateTime, money, statusLabel } from '../../utils/formatters.js'
+import ProviderRequestModal from './ProviderRequestModal.jsx'
 
 function ProviderRequestsPage() {
-  const requests = [
-    {
-      id: 1,
-      client: 'María López',
-      service: 'Reparación de fuga en baño',
-      description: 'Necesito reparar una fuga debajo del lavabo del baño principal.',
-      location: 'Col. Roma Norte, CDMX',
-      distance: '2.3 km',
-      time: 'Hace 15 min',
-      price: 350,
-      priority: 'Urgente',
-    },
-    {
-      id: 2,
-      client: 'Juan Pérez',
-      service: 'Instalación de lavabo',
-      description: 'Instalación completa de lavabo nuevo con conexión de tubería.',
-      location: 'Col. Condesa, CDMX',
-      distance: '1.8 km',
-      time: 'Hace 1 hora',
-      price: 280,
-      priority: 'Normal',
-    },
-    {
-      id: 3,
-      client: 'Ana García',
-      service: 'Revisión de tubería',
-      description: 'Revisión general de tubería por baja presión de agua.',
-      location: 'Col. Polanco, CDMX',
-      distance: '4.2 km',
-      time: 'Hace 2 horas',
-      price: 200,
-      priority: 'Flexible',
-    },
-    {
-      id: 4,
-      client: 'Roberto Silva',
-      service: 'Cambio de llave mezcladora',
-      description: 'Cambiar llave mezcladora de cocina y revisar sellado.',
-      location: 'Col. Del Valle, CDMX',
-      distance: '3.1 km',
-      time: 'Hace 3 horas',
-      price: 220,
-      priority: 'Normal',
-    },
-  ]
+  const [requests, setRequests] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
+  const [requestAction, setRequestAction] = useState(null)
+
+  useEffect(() => {
+    loadRequests()
+  }, [])
+
+  async function loadRequests() {
+    setLoading(true)
+
+    try {
+      const response = await providerApi.requests()
+      setRequests(response.data || [])
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function acceptRequest(id) {
+    try {
+      await providerApi.acceptRequest(id)
+      setMessage('Solicitud aceptada. Ya se encuentra en tus trabajos y calendario.')
+      await loadRequests()
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
+  const pending = requests.filter((request) => request.status === 'pending')
+  const urgent = pending.filter((request) => request.priority === 'urgent').length
+  const estimatedTotal = pending.reduce((total, request) => total + request.estimatedPrice, 0)
 
   return (
     <>
@@ -67,10 +61,10 @@ function ProviderRequestsPage() {
         <div className="provider-page-actions">
           <button className="outline-action-button">
             <FiFilter />
-            Filtrar
+            Pendientes
           </button>
 
-          <button className="solid-action-button">
+          <button className="solid-action-button" onClick={loadRequests}>
             <FiRefreshCw />
             Actualizar
           </button>
@@ -78,21 +72,23 @@ function ProviderRequestsPage() {
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="requests-summary-grid">
           <article className="dashboard-card request-summary-card">
-            <h2>4</h2>
+            <h2>{pending.length}</h2>
             <p>Solicitudes pendientes</p>
             <span>Requieren respuesta</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>2</h2>
+            <h2>{urgent}</h2>
             <p>Urgentes</p>
             <span>Prioridad alta</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>$1,050</h2>
+            <h2>{money(estimatedTotal)}</h2>
             <p>Valor estimado</p>
             <span>Total posible</span>
           </article>
@@ -100,42 +96,38 @@ function ProviderRequestsPage() {
 
         <div className="section-title">
           <h2>Solicitudes recientes</h2>
-          <button>Ver historial</button>
+          <button onClick={loadRequests}>Actualizar</button>
         </div>
 
         <div className="provider-requests-list">
-          {requests.map((request) => (
+          {pending.map((request) => (
             <article className="dashboard-card provider-request-card" key={request.id}>
               <div className="provider-request-top">
                 <div className="provider-request-user">
                   <div className="request-avatar">
-                    {request.client.charAt(0)}
+                    {request.client.nombre.charAt(0)}
                   </div>
 
                   <div>
-                    <h3>{request.client}</h3>
-                    <p>{request.service}</p>
+                    <h3>{request.client.nombre}</h3>
+                    <p>{request.title}</p>
 
                     <div className="request-meta">
                       <span>
                         <FiMapPin />
-                        {request.location}
-                      </span>
-
-                      <span>
-                        {request.distance}
+                        {addressText(request.address)}
                       </span>
 
                       <span>
                         <FiClock />
-                        {request.time}
+                        Visita: {dateTime(request.scheduledAt || request.requestedAt)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <span className={`request-tag ${request.priority.toLowerCase()}`}>
-                  {request.priority}
+                <span className={`request-tag ${request.priority === 'urgent' ? 'urgente' : 'normal'}`}>
+                  {request.priority === 'urgent' ? 'Urgente' : statusLabel(request.status)}
                 </span>
               </div>
 
@@ -145,17 +137,22 @@ function ProviderRequestsPage() {
 
               <div className="provider-request-bottom">
                 <div>
-                  <strong>${request.price}</strong>
+                  <strong>{money(request.estimatedPrice)}</strong>
                   <span> estimado</span>
                 </div>
 
                 <div className="provider-request-actions">
-                  <button className="reject-button">
+                  <button className="outline-job-button" onClick={() => setRequestAction({ request, mode: 'date' })}>
+                    <FiCalendar />
+                    Otra fecha
+                  </button>
+
+                  <button className="reject-button" onClick={() => setRequestAction({ request, mode: 'reject' })}>
                     <FiX />
                     Rechazar
                   </button>
 
-                  <button className="accept-button">
+                  <button className="accept-button" onClick={() => acceptRequest(request.id)}>
                     <FiCheck />
                     Aceptar
                   </button>
@@ -164,7 +161,28 @@ function ProviderRequestsPage() {
             </article>
           ))}
         </div>
+
+        {!loading && pending.length === 0 && (
+          <article className="dashboard-card empty-state-card">
+            <FiCheck />
+            <h2>No hay solicitudes pendientes</h2>
+            <p>Las nuevas solicitudes aparecerán en esta bandeja.</p>
+          </article>
+        )}
       </section>
+
+      {requestAction && (
+        <ProviderRequestModal
+          request={requestAction.request}
+          mode={requestAction.mode}
+          onClose={() => setRequestAction(null)}
+          onUpdated={async (feedback) => {
+            setMessage(feedback)
+            setRequestAction(null)
+            await loadRequests()
+          }}
+        />
+      )}
     </>
   )
 }

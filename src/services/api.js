@@ -38,9 +38,165 @@ export const authApi = {
     }),
 
   profile: () => apiRequest('/users/profile'),
+  updateProfile: (profile) =>
+    apiRequest('/users/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(profile),
+    }),
 }
 
 export const servicesApi = {
-  getAll: () => apiRequest('/services'),
+  getAll: (filters = {}) => apiRequest(`/services${queryString(filters)}`),
   getById: (id) => apiRequest(`/services/${id}`),
+  create: (service) =>
+    apiRequest('/services', {
+      method: 'POST',
+      body: JSON.stringify(service),
+    }),
+  update: (id, service) =>
+    apiRequest(`/services/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(service),
+    }),
+  remove: (id) => apiRequest(`/services/${id}`, { method: 'DELETE' }),
+}
+
+export const categoriesApi = {
+  getAll: () => apiRequest('/categories'),
+}
+
+export const dashboardApi = {
+  client: () => apiRequest('/dashboard/client'),
+  provider: () => apiRequest('/dashboard/provider'),
+}
+
+export const requestsApi = {
+  mine: () => apiRequest('/requests/mine'),
+  create: (request) =>
+    apiRequest('/requests', {
+      method: 'POST',
+      body: JSON.stringify(request),
+    }),
+  cancel: (id) => apiRequest(`/requests/${id}/cancel`, { method: 'PATCH' }),
+  reschedule: (id, schedule) =>
+    apiRequest(`/requests/${id}/reschedule`, {
+      method: 'PATCH',
+      body: JSON.stringify(schedule),
+    }),
+  acceptDate: (id) =>
+    apiRequest(`/requests/${id}/accept-date`, { method: 'PATCH' }),
+  review: (id, review) =>
+    apiRequest(`/requests/${id}/review`, {
+      method: 'POST',
+      body: JSON.stringify(review),
+    }),
+}
+
+export const providerApi = {
+  dashboard: () => dashboardApi.provider(),
+  requests: () => apiRequest('/provider/requests'),
+  acceptRequest: (id) =>
+    apiRequest(`/provider/requests/${id}/accept`, { method: 'PATCH' }),
+  rejectRequest: (id, motivo) =>
+    apiRequest(`/provider/requests/${id}/reject`, {
+      method: 'PATCH',
+      body: JSON.stringify({ motivo }),
+    }),
+  proposeDate: (id, fechaPropuesta) =>
+    apiRequest(`/provider/requests/${id}/propose-date`, {
+      method: 'PATCH',
+      body: JSON.stringify({ fechaPropuesta }),
+    }),
+  jobs: () => apiRequest('/provider/jobs'),
+  updateJobStatus: (id, status) =>
+    apiRequest(`/provider/jobs/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+  calendar: () => apiRequest('/provider/calendar'),
+  earnings: (filters = {}) =>
+    apiRequest(`/provider/earnings/summary${queryString(filters)}`),
+  transactions: () => apiRequest('/provider/transactions'),
+  reviews: () => apiRequest('/provider/reviews/summary'),
+  updateProfile: (profile) =>
+    apiRequest('/providers/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(profile),
+    }),
+  updateAvailability: (disponible) =>
+    apiRequest('/provider/availability', {
+      method: 'PATCH',
+      body: JSON.stringify({ disponible }),
+    }),
+}
+
+export const favoritesApi = {
+  getAll: () => apiRequest('/favorites'),
+  add: (providerId) =>
+    apiRequest(`/favorites/${providerId}`, { method: 'POST' }),
+  remove: (providerId) =>
+    apiRequest(`/favorites/${providerId}`, { method: 'DELETE' }),
+}
+
+export const conversationsApi = {
+  getAll: () => apiRequest('/conversations'),
+  messages: (id) => apiRequest(`/conversations/${id}/messages`),
+  send: (id, text) =>
+    apiRequest(`/conversations/${id}/messages`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    }),
+  read: (id) =>
+    apiRequest(`/conversations/${id}/read`, { method: 'PATCH' }),
+}
+
+export const notificationsApi = {
+  getAll: () => apiRequest('/notifications'),
+  read: (id) =>
+    apiRequest(`/notifications/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ read: true }),
+    }),
+}
+
+export const paymentsApi = {
+  forRequest: (requestId) => apiRequest(`/requests/${requestId}/payment`),
+  createForRequest: (requestId, payment) =>
+    apiRequest(`/requests/${requestId}/payment`, {
+      method: 'POST',
+      body: JSON.stringify(payment),
+    }),
+  confirm: (requestId) =>
+    apiRequest(`/requests/${requestId}/payment/confirm`, { method: 'PATCH' }),
+}
+
+export const addressesApi = {
+  getAll: () => apiRequest('/addresses'),
+  create: (address) =>
+    apiRequest('/addresses', {
+      method: 'POST',
+      body: JSON.stringify(address),
+    }),
+  update: (id, address) =>
+    apiRequest(`/addresses/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(address),
+    }),
+}
+
+export const ratingsApi = {
+  getAll: () => apiRequest('/calificaciones'),
+}
+
+function queryString(filters) {
+  const params = new URLSearchParams()
+
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.set(key, value)
+    }
+  })
+
+  const query = params.toString()
+  return query ? `?${query}` : ''
 }

@@ -1,44 +1,63 @@
+import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import {
   FiSearch,
   FiMapPin,
   FiStar,
   FiClock,
   FiFilter,
+  FiHeart,
 } from 'react-icons/fi'
+import { categoriesApi, favoritesApi, servicesApi } from '../../services/api.js'
+import { money } from '../../utils/formatters.js'
+import RequestServiceModal from './RequestServiceModal.jsx'
 
 function ClientSearchPage() {
-  const providers = [
-    {
-      id: 1,
-      name: 'Carlos Mendoza',
-      job: 'Plomero certificado',
-      rating: 4.8,
-      reviews: 124,
-      distance: '1.2 km',
-      price: 250,
-      available: 'Disponible',
-    },
-    {
-      id: 2,
-      name: 'Ana García',
-      job: 'Electricista profesional',
-      rating: 4.9,
-      reviews: 98,
-      distance: '2.5 km',
-      price: 300,
-      available: 'Hoy',
-    },
-    {
-      id: 3,
-      name: 'Luis Hernández',
-      job: 'Pintor experto',
-      rating: 4.7,
-      reviews: 76,
-      distance: '0.8 km',
-      price: 200,
-      available: 'Disponible',
-    },
-  ]
+  const location = useLocation()
+  const routedCategoryId = location.state?.categoryId || ''
+  const [providers, setProviders] = useState([])
+  const [categories, setCategories] = useState([])
+  const [search, setSearch] = useState('')
+  const [categoryId, setCategoryId] = useState(routedCategoryId)
+  const [sort, setSort] = useState('availability')
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
+  const [serviceToRequest, setServiceToRequest] = useState(null)
+
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then((response) => setCategories(response.data || []))
+      .catch((error) => setMessage(error.message))
+    loadProviders({ categoryId: routedCategoryId || undefined })
+  }, [routedCategoryId])
+
+  async function loadProviders(filters = {}) {
+    setLoading(true)
+    setMessage('')
+
+    try {
+      const response = await servicesApi.getAll({ available: true, ...filters })
+      setProviders(response.data || [])
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function submitSearch(event) {
+    event.preventDefault()
+    loadProviders({ search, categoryId, sort })
+  }
+
+  async function saveFavorite(provider) {
+    try {
+      await favoritesApi.add(provider.providerId)
+      setMessage(`${provider.nombre} fue agregado a favoritos.`)
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
 
   return (
     <>
@@ -51,62 +70,110 @@ function ClientSearchPage() {
       </header>
 
       <section className="provider-content">
-        <div className="client-search-toolbar">
+        <form className="client-search-toolbar" onSubmit={submitSearch}>
           <div className="client-search-input">
             <FiSearch />
-            <input placeholder="Buscar plomero, electricista, limpieza..." />
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Buscar plomero, electricista, limpieza..."
+            />
           </div>
 
-          <button>
+          <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+            <option value="">Todas las categorías</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>{category.nombre}</option>
+            ))}
+          </select>
+
+          <select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <option value="availability">Disponibilidad</option>
+            <option value="rating">Mejor calificación</option>
+            <option value="price_asc">Menor precio</option>
+            <option value="price_desc">Mayor precio</option>
+          </select>
+
+          <button type="submit">
             <FiFilter />
-            Filtros
+            Buscar
           </button>
-        </div>
+        </form>
+
+        {message && <p className="status-message api-feedback">{message}</p>}
 
         <div className="section-title">
-          <h2>Resultados cerca de ti</h2>
-          <button>Ver mapa</button>
+          <h2>Resultados disponibles</h2>
+          <button onClick={() => loadProviders()}>Actualizar</button>
         </div>
 
         <div className="client-search-results">
           {providers.map((provider) => (
             <article className="dashboard-card client-result-card" key={provider.id}>
               <div className="client-provider-avatar">
-                {provider.name.charAt(0)}
+                {provider.nombre.charAt(0)}
               </div>
 
               <div>
-                <h3>{provider.name}</h3>
-                <p>{provider.job}</p>
+                <h3>{provider.nombre}</h3>
+                <p>{provider.oficio}</p>
 
                 <div className="service-meta">
                   <span>
                     <FiStar />
-                    <strong>{provider.rating}</strong>
+                    <strong>{provider.rating.toFixed(1)}</strong>
                     ({provider.reviews})
                   </span>
 
                   <span>
                     <FiMapPin />
-                    {provider.distance}
+                    {provider.distancia || 'Ubicación no compartida'}
                   </span>
 
                   <span>
                     <FiClock />
-                    {provider.available}
+                    {provider.disponibilidad}
                   </span>
                 </div>
               </div>
 
               <div className="client-provider-price">
-                <strong>${provider.price}</strong>
+                <strong>{money(provider.precio)}</strong>
                 <span>por hora</span>
-                <button>Ver perfil</button>
+                <div className="favorite-actions">
+                  <button onClick={() => setServiceToRequest(provider)}>Solicitar</button>
+                  <button
+                    className="favorite-remove-button"
+                    onClick={() => saveFavorite(provider)}
+                    aria-label="Agregar a favoritos"
+                  >
+                    <FiHeart />
+                  </button>
+                </div>
               </div>
             </article>
           ))}
         </div>
+
+        {!loading && providers.length === 0 && (
+          <article className="dashboard-card empty-state-card">
+            <FiSearch />
+            <h2>No hay servicios disponibles</h2>
+            <p>Prueba con otra búsqueda o vuelve a actualizar.</p>
+          </article>
+        )}
       </section>
+
+      {serviceToRequest && (
+        <RequestServiceModal
+          service={serviceToRequest}
+          onClose={() => setServiceToRequest(null)}
+          onCreated={() => {
+            setMessage(`Solicitud agendada y enviada a ${serviceToRequest.nombre}.`)
+            setServiceToRequest(null)
+          }}
+        />
+      )}
     </>
   )
 }

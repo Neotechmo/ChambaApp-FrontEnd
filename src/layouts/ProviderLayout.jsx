@@ -3,6 +3,8 @@ import {
   useNavigate,
   useLocation,
 } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { conversationsApi, notificationsApi, providerApi } from '../services/api.js'
 
 import {
   FiGrid,
@@ -13,6 +15,7 @@ import {
   FiDollarSign,
   FiStar,
   FiUser,
+  FiTool,
 } from 'react-icons/fi'
 
 function ProviderLayout({
@@ -23,6 +26,95 @@ function ProviderLayout({
 }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const [counts, setCounts] = useState({ requests: 0, unread: 0 })
+  const [notification, setNotification] = useState('')
+  const [notificationTitle, setNotificationTitle] = useState('Mensaje nuevo')
+  const previousChats = useRef(new Map())
+  const previousNotifications = useRef(new Set())
+  const notificationsReady = useRef(false)
+  const notificationTimeout = useRef(null)
+
+  useEffect(() => {
+    let active = true
+
+    async function refreshIndicators() {
+      try {
+        const [dashboard, conversations, systemNotifications] = await Promise.all([
+          providerApi.dashboard(),
+          conversationsApi.getAll(),
+          notificationsApi.getAll(),
+        ])
+        if (!active) return
+
+        const chats = conversations.data || []
+        if (notificationsReady.current) {
+          const incoming = chats.find((conversation) => {
+            const previous = previousChats.current.get(conversation.id)
+            return (
+              conversation.unreadCount > (previous?.unreadCount || 0) &&
+              conversation.lastMessageAt !== previous?.lastMessageAt
+            )
+          })
+
+          if (incoming) {
+            setNotificationTitle('Mensaje nuevo')
+            setNotification(
+              `Nuevo mensaje de ${incoming.otherUser.nombre}: ${incoming.lastMessage}`,
+            )
+            window.clearTimeout(notificationTimeout.current)
+            notificationTimeout.current = window.setTimeout(
+              () => setNotification(''),
+              5000,
+            )
+          }
+
+          const newEvent = systemNotifications.find(
+            (item) => !item.read && !previousNotifications.current.has(item._id),
+          )
+          if (newEvent) {
+            setNotificationTitle(newEvent.title)
+            setNotification(newEvent.message)
+            notificationsApi.read(newEvent._id).catch(() => {})
+            window.clearTimeout(notificationTimeout.current)
+            notificationTimeout.current = window.setTimeout(() => setNotification(''), 5000)
+          }
+        }
+
+        previousChats.current = new Map(
+          chats.map((conversation) => [
+            conversation.id,
+            {
+              unreadCount: conversation.unreadCount,
+              lastMessageAt: conversation.lastMessageAt,
+            },
+          ]),
+        )
+        notificationsReady.current = true
+        previousNotifications.current = new Set(
+          systemNotifications.map((item) => item._id),
+        )
+        setCounts({
+          requests: dashboard.pendingRequests || 0,
+          unread: chats.reduce(
+            (total, conversation) => total + conversation.unreadCount,
+            0,
+          ),
+        })
+      } catch {
+        // Keep the current badge if a background refresh fails.
+      }
+    }
+
+    refreshIndicators()
+    const interval = window.setInterval(refreshIndicators, 4000)
+
+    return () => {
+      active = false
+      window.clearInterval(interval)
+    }
+  }, [location.pathname])
+
+  useEffect(() => () => window.clearTimeout(notificationTimeout.current), [])
 
   return (
     <main
@@ -32,6 +124,19 @@ function ProviderLayout({
           : 'provider-layout'
       }
     >
+      {notification && (
+        <aside className="message-toast" role="alert">
+          <FiMessageSquare />
+          <div>
+            <strong>{notificationTitle}</strong>
+            <p>{notification}</p>
+          </div>
+          <button onClick={() => setNotification('')} aria-label="Cerrar notificación">
+            ×
+          </button>
+        </aside>
+      )}
+
       <aside className="provider-sidebar">
         <div className="provider-brand">
           <div className="brand-badge small-brand">
@@ -72,7 +177,7 @@ function ProviderLayout({
               Solicitudes
             </div>
 
-            <span>4</span>
+            {counts.requests > 0 && <span>{counts.requests}</span>}
           </button>
 
           <button
@@ -116,7 +221,7 @@ function ProviderLayout({
               Mensajes
             </div>
 
-            <span>2</span>
+            {counts.unread > 0 && <span>{counts.unread}</span>}
           </button>
 
           <button
@@ -149,6 +254,20 @@ function ProviderLayout({
 
           <button
             className={
+              location.pathname === '/provider/services'
+                ? 'active'
+                : ''
+            }
+            onClick={() => navigate('/provider/services')}
+          >
+            <div className="menu-item-left">
+              <FiTool />
+              Mis servicios
+            </div>
+          </button>
+
+          <button
+            className={
               location.pathname === '/provider/profile'
                 ? 'active'
                 : ''
@@ -172,7 +291,7 @@ function ProviderLayout({
               {user?.nombre || 'Prestador'}
             </strong>
 
-            <p>Plomero certificado</p>
+            <p>Prestador</p>
           </div>
         </div>
       </aside>

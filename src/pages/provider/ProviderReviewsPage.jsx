@@ -1,36 +1,35 @@
+import { useEffect, useState } from 'react'
 import {
   FiStar,
   FiMessageSquare,
   FiTrendingUp,
 } from 'react-icons/fi'
+import { providerApi } from '../../services/api.js'
+import { shortDate } from '../../utils/formatters.js'
 
 function ProviderReviewsPage() {
-  const reviews = [
-    {
-      id: 1,
-      client: 'María López',
-      service: 'Reparación de fuga',
-      rating: 5,
-      comment: 'Muy puntual, amable y dejó todo funcionando perfecto.',
-      date: 'Hace 2 días',
-    },
-    {
-      id: 2,
-      client: 'Roberto Silva',
-      service: 'Instalación de lavabo',
-      rating: 5,
-      comment: 'Excelente trabajo, explicó todo y fue muy limpio.',
-      date: 'Hace 1 semana',
-    },
-    {
-      id: 3,
-      client: 'Ana García',
-      service: 'Revisión de tubería',
-      rating: 4,
-      comment: 'Buen servicio, llegó un poco tarde pero resolvió el problema.',
-      date: 'Hace 2 semanas',
-    },
-  ]
+  const [reviews, setReviews] = useState([])
+  const [summary, setSummary] = useState({
+    average: 0,
+    satisfactionPercent: 0,
+    total: 0,
+    distribution: {},
+  })
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    loadReviews()
+  }, [])
+
+  async function loadReviews() {
+    try {
+      const response = await providerApi.reviews()
+      setSummary(response.summary)
+      setReviews(response.data || [])
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
 
   return (
     <>
@@ -42,12 +41,12 @@ function ProviderReviewsPage() {
         </div>
 
         <div className="provider-page-actions">
-          <button className="outline-action-button">
+          <button className="outline-action-button" onClick={loadReviews}>
             <FiMessageSquare />
-            Comentarios
+            Actualizar
           </button>
 
-          <button className="solid-action-button">
+          <button className="solid-action-button" onClick={loadReviews}>
             <FiTrendingUp />
             Estadísticas
           </button>
@@ -55,21 +54,23 @@ function ProviderReviewsPage() {
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="requests-summary-grid">
           <article className="dashboard-card request-summary-card">
-            <h2>4.8</h2>
+            <h2>{summary.average.toFixed(1)}</h2>
             <p>Calificación promedio</p>
-            <span>Basado en 124 reseñas</span>
+            <span>Basado en {summary.total} reseñas</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>98%</h2>
+            <h2>{summary.satisfactionPercent}%</h2>
             <p>Satisfacción</p>
             <span>Clientes satisfechos</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>124</h2>
+            <h2>{summary.total}</h2>
             <p>Total de reseñas</p>
             <span>Historial completo</span>
           </article>
@@ -79,7 +80,7 @@ function ProviderReviewsPage() {
           <section>
             <div className="section-title">
               <h2>Últimas reseñas</h2>
-              <button>Ver todas</button>
+              <button onClick={loadReviews}>Actualizar</button>
             </div>
 
             <div className="reviews-list">
@@ -87,15 +88,15 @@ function ProviderReviewsPage() {
                 <article className="dashboard-card review-card" key={review.id}>
                   <div className="review-top">
                     <div className="request-avatar">
-                      {review.client.charAt(0)}
+                      {review.clientName.charAt(0)}
                     </div>
 
                     <div>
-                      <h3>{review.client}</h3>
+                      <h3>{review.clientName}</h3>
                       <p>{review.service}</p>
                     </div>
 
-                    <span>{review.date}</span>
+                    <span>{shortDate(review.createdAt)}</span>
                   </div>
 
                   <div className="review-stars">
@@ -107,9 +108,7 @@ function ProviderReviewsPage() {
                     ))}
                   </div>
 
-                  <p className="review-comment">
-                    {review.comment}
-                  </p>
+                  <p className="review-comment">{review.comment}</p>
                 </article>
               ))}
             </div>
@@ -119,43 +118,22 @@ function ProviderReviewsPage() {
             <article className="dashboard-card rating-breakdown-card">
               <h2>Distribución</h2>
 
-              {[5, 4, 3, 2, 1].map((stars, index) => (
-                <div className="rating-row" key={stars}>
-                  <span>{stars} estrellas</span>
+              {[5, 4, 3, 2, 1].map((stars) => {
+                const count = summary.distribution[String(stars)] || 0
+                const percent = summary.total ? Math.round((count / summary.total) * 100) : 0
 
-                  <div>
-                    <strong
-                      style={{
-                        width: `${[78, 16, 4, 1, 1][index]}%`,
-                      }}
-                    ></strong>
+                return (
+                  <div className="rating-row" key={stars}>
+                    <span>{stars} estrellas</span>
+
+                    <div>
+                      <strong style={{ width: `${percent}%` }}></strong>
+                    </div>
+
+                    <small>{percent}%</small>
                   </div>
-
-                  <small>{[78, 16, 4, 1, 1][index]}%</small>
-                </div>
-              ))}
-            </article>
-
-            <article className="verified-card">
-              <h2>Reputación alta</h2>
-              <p>Tu perfil mantiene una excelente calificación.</p>
-
-              <div>
-                <span>Respuesta rápida</span>
-                <strong>92%</strong>
-              </div>
-
-              <div>
-                <span>Puntualidad</span>
-                <strong>96%</strong>
-              </div>
-
-              <div>
-                <span>Calidad</span>
-                <strong>98%</strong>
-              </div>
-
-              <button>Ver recomendaciones</button>
+                )
+              })}
             </article>
           </aside>
         </div>

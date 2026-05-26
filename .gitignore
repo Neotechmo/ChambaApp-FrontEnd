@@ -23,3 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Local backend coordination notes
+/NECESIDADES_BACK.md
+PROMT_FALTANTES.md

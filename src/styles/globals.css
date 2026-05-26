@@ -22,10 +22,289 @@ body {
 
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.api-feedback {
+  margin: 0 0 22px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--primary);
+  background: #ede9fe;
+}
+
+.message-toast {
+  position: fixed;
+  top: 22px;
+  right: 22px;
+  z-index: 50;
+  width: min(390px, calc(100vw - 44px));
+  padding: 14px;
+  border-radius: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: white;
+  background: #17172f;
+  box-shadow: 0 16px 38px rgba(23, 23, 47, 0.28);
+}
+
+.message-toast > svg {
+  flex: none;
+  margin-top: 3px;
+  color: #19b7e8;
+  font-size: 20px;
+}
+
+.message-toast strong,
+.message-toast p {
+  margin: 0;
+}
+
+.message-toast p {
+  margin-top: 4px;
+  color: #d7d9e0;
+  font-size: 14px;
+}
+
+.message-toast button {
+  margin-left: auto;
+  border: 0;
+  color: white;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 18, 27, 0.6);
+}
+
+.request-service-modal,
+.payment-modal {
+  width: min(680px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  padding: 26px;
+}
+
+.payment-modal {
+  width: min(500px, 100%);
+}
+
+.request-service-modal header,
+.payment-modal header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.request-service-modal header p,
+.request-service-modal header h2,
+.request-service-modal header span,
+.payment-modal header p,
+.payment-modal header h2,
+.payment-modal header span {
+  margin: 0;
+}
+
+.request-service-modal header p,
+.payment-modal header p {
+  color: var(--primary);
+  font-weight: 900;
+}
+
+.request-service-modal header h2,
+.payment-modal header h2 {
+  margin: 4px 0 7px;
+}
+
+.request-service-modal header span,
+.payment-modal header span,
+.payment-note {
+  color: var(--muted);
+}
+
+.request-service-modal header button,
+.payment-modal header button {
+  border: 0;
+  border-radius: 12px;
+  padding: 8px;
+  background: #f3f4f6;
+  font-size: 20px;
+}
+
+.request-service-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.request-service-form label {
+  display: grid;
+  gap: 8px;
+  color: #30374b;
+  font-weight: 800;
+}
+
+.request-service-form label svg {
+  color: var(--primary);
+}
+
+.request-service-form input,
+.request-service-form select,
+.request-service-form textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  color: var(--text);
+  background: white;
+}
+
+.request-service-form textarea {
+  resize: vertical;
+}
+
+.request-form-wide {
+  grid-column: 1 / -1;
+}
+
+.request-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.payment-total {
+  margin-bottom: 22px;
+  padding: 18px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #ede9fe;
+  color: var(--primary);
+}
+
+.payment-total svg {
+  font-size: 24px;
+}
+
+.payment-total span,
+.payment-total strong {
+  display: block;
+}
+
+.payment-total span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.payment-total strong {
+  font-size: 27px;
+}
+
+.payment-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.payment-confirmation {
+  display: grid;
+  gap: 18px;
+}
+
+.payment-success {
+  padding: 16px;
+  border-radius: 14px;
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.payment-success p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.payment-success button {
+  justify-content: center;
+}
+
+.dark .request-service-modal,
+.dark .payment-modal {
+  color: #f5f5f5;
+  background: #1d1d1d;
+}
+
+.dark .request-service-modal header button,
+.dark .payment-modal header button {
+  color: #f5f5f5;
+  background: #333;
+}
+
+.dark .request-service-form label {
+  color: #d7d9e0;
+}
+
+.dark .request-service-form input,
+.dark .request-service-form select,
+.dark .request-service-form textarea {
+  color: #f5f5f5;
+  background: #232323;
+  border-color: #333;
+}
+
+.dark .payment-success {
+  color: #86efac;
+  background: #122b1c;
+}
+
+@media (max-width: 600px) {
+  .modal-backdrop {
+    padding: 12px;
+  }
+
+  .request-service-modal,
+  .payment-modal {
+    max-height: calc(100vh - 24px);
+    padding: 18px;
+  }
+
+  .request-service-form {
+    grid-template-columns: 1fr;
+  }
+
+  .request-form-actions {
+    flex-direction: column;
+  }
+
+  .request-form-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .payment-total {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

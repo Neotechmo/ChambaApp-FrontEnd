@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   FiClock,
   FiMapPin,
@@ -6,43 +8,63 @@ import {
   FiNavigation,
   FiCheckCircle,
 } from 'react-icons/fi'
+import { providerApi } from '../../services/api.js'
+import {
+  addressText,
+  dateTime,
+  jobProgress,
+  jobStatusClass,
+  money,
+  statusLabel,
+} from '../../utils/formatters.js'
 
 function ProviderJobsPage() {
-  const jobs = [
-    {
-      id: 1,
-      client: 'Patricia Ruiz',
-      service: 'Reparación urgente',
-      address: 'Col. Roma Norte, CDMX',
-      time: '14:30 - 16:30',
-      status: 'Trabajando',
-      progress: 65,
-      price: 450,
-      phone: '55 1234 5678',
-    },
-    {
-      id: 2,
-      client: 'Roberto Silva',
-      service: 'Instalación de lavabo',
-      address: 'Col. Condesa, CDMX',
-      time: '17:00 - 19:00',
-      status: 'En camino',
-      progress: 30,
-      price: 350,
-      phone: '55 8765 4321',
-    },
-    {
-      id: 3,
-      client: 'Luis Torres',
-      service: 'Mantenimiento general',
-      address: 'Col. Del Valle, CDMX',
-      time: '19:30 - 21:00',
-      status: 'Pendiente',
-      progress: 0,
-      price: 280,
-      phone: '55 2468 1357',
-    },
-  ]
+  const navigate = useNavigate()
+  const [jobs, setJobs] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    loadJobs()
+  }, [])
+
+  async function loadJobs() {
+    setLoading(true)
+
+    try {
+      const response = await providerApi.jobs()
+      setJobs(response.data || [])
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function advanceJob(job) {
+    const nextStatus = {
+      accepted: 'on_the_way',
+      on_the_way: 'in_progress',
+      in_progress: 'completed',
+    }[job.status]
+
+    if (!nextStatus) return
+
+    try {
+      await providerApi.updateJobStatus(job.id, nextStatus)
+      setMessage(`Trabajo actualizado: ${statusLabel(nextStatus)}.`)
+      await loadJobs()
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
+  const activeJobs = jobs.filter((job) => job.status !== 'completed')
+  const income = activeJobs.reduce((total, job) => total + job.estimatedPrice, 0)
+  const maxProgress = activeJobs.reduce(
+    (maximum, job) => Math.max(maximum, jobProgress(job.status)),
+    0,
+  )
 
   return (
     <>
@@ -54,34 +76,36 @@ function ProviderJobsPage() {
         </div>
 
         <div className="provider-page-actions">
-          <button className="outline-action-button">
+          <button className="outline-action-button" onClick={loadJobs}>
             <FiClock />
-            Hoy
+            Actualizar
           </button>
 
           <button className="solid-action-button">
             <FiCheckCircle />
-            Finalizados
+            {jobs.filter((job) => job.status === 'completed').length} finalizados
           </button>
         </div>
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="requests-summary-grid">
           <article className="dashboard-card request-summary-card">
-            <h2>3</h2>
+            <h2>{activeJobs.length}</h2>
             <p>En curso</p>
-            <span>Trabajos activos hoy</span>
+            <span>Trabajos activos</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>65%</h2>
+            <h2>{maxProgress}%</h2>
             <p>Mayor avance</p>
-            <span>Reparación urgente</span>
+            <span>Servicios en progreso</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>$1,080</h2>
+            <h2>{money(income)}</h2>
             <p>Ingreso estimado</p>
             <span>Total de trabajos activos</span>
           </article>
@@ -89,78 +113,97 @@ function ProviderJobsPage() {
 
         <div className="section-title">
           <h2>Lista de trabajos</h2>
-          <button>Ordenar por hora</button>
+          <button onClick={loadJobs}>Actualizar</button>
         </div>
 
         <div className="provider-jobs-list">
-          {jobs.map((job) => (
-            <article className="dashboard-card provider-job-card" key={job.id}>
-              <div className="provider-job-header">
-                <div className="provider-request-user">
-                  <div className="request-avatar">
-                    {job.client.charAt(0)}
-                  </div>
+          {activeJobs.map((job) => {
+            const progress = jobProgress(job.status)
+            const nextLabel = {
+              accepted: 'Iniciar traslado',
+              on_the_way: 'Iniciar trabajo',
+              in_progress: 'Completar',
+            }[job.status]
 
-                  <div>
-                    <h3>{job.client}</h3>
-                    <p>{job.service}</p>
+            return (
+              <article className="dashboard-card provider-job-card" key={job.id}>
+                <div className="provider-job-header">
+                  <div className="provider-request-user">
+                    <div className="request-avatar">
+                      {job.client.nombre.charAt(0)}
+                    </div>
 
-                    <div className="request-meta">
-                      <span>
-                        <FiClock />
-                        {job.time}
-                      </span>
+                    <div>
+                      <h3>{job.client.nombre}</h3>
+                      <p>{job.title}</p>
 
-                      <span>
-                        <FiMapPin />
-                        {job.address}
-                      </span>
+                      <div className="request-meta">
+                        <span>
+                          <FiClock />
+                          {dateTime(job.scheduledAt || job.requestedAt)}
+                        </span>
+
+                        <span>
+                          <FiMapPin />
+                          {addressText(job.address)}
+                        </span>
+                      </div>
                     </div>
                   </div>
+
+                  <span className={`job-status ${jobStatusClass(job.status)}`}>
+                    {statusLabel(job.status)}
+                  </span>
                 </div>
 
-                <span className={`job-status ${job.status.toLowerCase().replaceAll(' ', '-')}`}>
-                  {job.status}
-                </span>
-              </div>
+                <div className="job-progress-area">
+                  <div className="job-progress-top">
+                    <span>Progreso del trabajo</span>
+                    <strong>{progress}%</strong>
+                  </div>
 
-              <div className="job-progress-area">
-                <div className="job-progress-top">
-                  <span>Progreso del trabajo</span>
-                  <strong>{job.progress}%</strong>
+                  <div className="progress-bar">
+                    <div style={{ width: `${progress}%` }}></div>
+                  </div>
                 </div>
 
-                <div className="progress-bar">
-                  <div style={{ width: `${job.progress}%` }}></div>
+                <div className="provider-job-footer">
+                  <div>
+                    <strong>{money(job.finalPrice || job.estimatedPrice)}</strong>
+                    <span> estimado</span>
+                  </div>
+
+                  <div className="provider-job-actions">
+                    {job.client.telefono && (
+                      <a className="outline-job-button" href={`tel:${job.client.telefono}`}>
+                        <FiPhone />
+                        Llamar
+                      </a>
+                    )}
+
+                    <button className="outline-job-button" onClick={() => navigate('/provider/messages')}>
+                      <FiMessageSquare />
+                      Mensaje
+                    </button>
+
+                    <button className="solid-job-button" onClick={() => advanceJob(job)}>
+                      <FiNavigation />
+                      {nextLabel}
+                    </button>
+                  </div>
                 </div>
-              </div>
-
-              <div className="provider-job-footer">
-                <div>
-                  <strong>${job.price}</strong>
-                  <span> estimado</span>
-                </div>
-
-                <div className="provider-job-actions">
-                  <button className="outline-job-button">
-                    <FiPhone />
-                    Llamar
-                  </button>
-
-                  <button className="outline-job-button">
-                    <FiMessageSquare />
-                    Mensaje
-                  </button>
-
-                  <button className="solid-job-button">
-                    <FiNavigation />
-                    Ver ruta
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            )
+          })}
         </div>
+
+        {!loading && activeJobs.length === 0 && (
+          <article className="dashboard-card empty-state-card">
+            <FiCheckCircle />
+            <h2>No hay trabajos activos</h2>
+            <p>Acepta una solicitud para verla aquí.</p>
+          </article>
+        )}
       </section>
     </>
   )

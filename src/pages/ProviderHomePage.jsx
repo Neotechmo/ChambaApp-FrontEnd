@@ -1,57 +1,40 @@
-function ProviderHomePage({ user, logout }) {
-  const requests = [
-    {
-      name: "María López",
-      title: "Reparación de fuga en baño",
-      location: "Col. Roma Norte, CDMX",
-      distance: "2.3 km",
-      time: "Hace 15 min",
-      price: "$350",
-      status: "Urgente",
-    },
-    {
-      name: "Juan Pérez",
-      title: "Instalación de lavabo",
-      location: "Col. Condesa, CDMX",
-      distance: "1.8 km",
-      time: "Hace 1 hora",
-      price: "$280",
-      status: "Normal",
-    },
-    {
-      name: "Ana García",
-      title: "Revisión de tubería",
-      location: "Col. Polanco, CDMX",
-      distance: "4.2 km",
-      time: "Hace 2 horas",
-      price: "$200",
-      status: "Flexible",
-    },
-  ];
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authApi, providerApi } from "../services/api.js";
+import { addressText, dateTime, jobProgress, money, statusLabel } from "../utils/formatters.js";
 
-  const activeJobs = [
-    {
-      name: "Patricia Ruiz",
-      description: "Reparación urgente",
-      time: "14:30 - 16:30",
-      progress: 65,
-      status: "Trabajando",
-    },
-    {
-      name: "Roberto Silva",
-      description: "Instalación",
-      time: "17:00 - 19:00",
-      progress: 30,
-      status: "En camino",
-    },
-    {
-      name: "Luis Torres",
-      description: "Mantenimiento",
-      time: "19:30 - 21:00",
-      progress: 0,
-      status: "Pendiente",
-    },
-  ];
+function ProviderHomePage({ user, logout }) {
+  const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState(null);
+  const [requests, setRequests] = useState([]);
+  const [activeJobs, setActiveJobs] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    Promise.all([
+      providerApi.dashboard(),
+      providerApi.requests(),
+      providerApi.jobs(),
+      authApi.profile(),
+    ])
+      .then(([summary, requestResponse, jobsResponse, profileResponse]) => {
+        setDashboard(summary);
+        setRequests((requestResponse.data || []).filter((request) => request.status === "pending"));
+        setActiveJobs((jobsResponse.data || []).filter((job) => job.status !== "completed"));
+        setProfile(profileResponse);
+      })
+      .catch((error) => setMessage(error.message));
+  }, []);
+
+  async function toggleAvailability() {
+    try {
+      const updated = await providerApi.updateAvailability(!profile?.disponible);
+      setProfile(updated);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
 
   return (
     <>
@@ -63,9 +46,9 @@ function ProviderHomePage({ user, logout }) {
           </div>
 
           <div className="provider-actions">
-            <button className="available-pill">
+            <button className="available-pill" onClick={toggleAvailability}>
               <span></span>
-              Disponible
+              {profile?.disponible ? "Disponible" : "No disponible"}
             </button>
 
             <button className="avatar-button">
@@ -80,30 +63,32 @@ function ProviderHomePage({ user, logout }) {
 
         <div className="pending-banner">
           <div>
-            <strong>Tienes 4 solicitudes pendientes</strong>
+            <strong>Tienes {dashboard?.pendingRequests || 0} solicitudes pendientes</strong>
             <p>Responde pronto para aumentar tu rating</p>
           </div>
 
-          <button>Ver solicitudes</button>
+          <button onClick={() => navigate("/provider/requests")}>Ver solicitudes</button>
         </div>
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="stats-grid">
           <article className="dashboard-card stat-card-pro">
             <div className="stat-icon green">✓</div>
 
-            <h2>124</h2>
+            <h2>{dashboard?.completedJobs || 0}</h2>
 
             <p>Trabajos completados</p>
 
-            <span>↗ +12 este mes</span>
+            <span>Historial registrado</span>
           </article>
 
           <article className="dashboard-card stat-card-pro">
             <div className="stat-icon cyan">◷</div>
 
-            <h2>4</h2>
+            <h2>{dashboard?.pendingRequests || 0}</h2>
 
             <p>Solicitudes nuevas</p>
 
@@ -113,21 +98,21 @@ function ProviderHomePage({ user, logout }) {
           <article className="dashboard-card stat-card-pro">
             <div className="stat-icon yellow">☆</div>
 
-            <h2>4.8</h2>
+            <h2>{dashboard?.rating?.toFixed(1) || "0.0"}</h2>
 
             <p>Calificación promedio</p>
 
-            <span>↗ 98% satisfacción</span>
+            <span>{dashboard?.reviews || 0} reseñas</span>
           </article>
 
           <article className="dashboard-card stat-card-pro">
             <div className="stat-icon purple">$</div>
 
-            <h2>$24,500</h2>
+            <h2>{money(dashboard?.earnings?.monthTotal)}</h2>
 
             <p>Ganancias del mes</p>
 
-            <span>↗ +18% vs anterior</span>
+            <span>{dashboard?.earnings?.monthlyGrowthPercent || 0}% vs anterior</span>
           </article>
         </div>
 
@@ -136,48 +121,43 @@ function ProviderHomePage({ user, logout }) {
             <div className="section-title">
               <h2>Solicitudes recientes</h2>
 
-              <button>Ver todas</button>
+              <button onClick={() => navigate("/provider/requests")}>Ver todas</button>
             </div>
 
             <div className="request-list">
-              {requests.map((request) => (
+              {requests.slice(0, 3).map((request) => (
                 <article
                   className="dashboard-card request-card"
-                  key={request.name}
+                  key={request.id}
                 >
                   <div className="request-top">
                     <div className="request-avatar">
-                      {request.name.charAt(0)}
+                      {request.client.nombre.charAt(0)}
                     </div>
 
                     <div>
-                      <h3>{request.name}</h3>
+                      <h3>{request.client.nombre}</h3>
 
                       <p>{request.title}</p>
 
                       <small>
-                        {request.location} · {request.distance} ·{" "}
-                        {request.time}
+                        {addressText(request.address)} · {dateTime(request.requestedAt)}
                       </small>
                     </div>
 
                     <span
-                      className={`request-tag ${request.status.toLowerCase()}`}
+                      className={`request-tag ${request.priority === "urgent" ? "urgente" : "normal"}`}
                     >
-                      {request.status}
+                      {request.priority === "urgent" ? "Urgente" : "Normal"}
                     </span>
                   </div>
 
                   <div className="request-bottom">
-                    <strong>{request.price}</strong>
+                    <strong>{money(request.estimatedPrice)}</strong>
 
                     <div>
-                      <button className="reject-button">
-                        Rechazar
-                      </button>
-
-                      <button className="accept-button">
-                        Aceptar
+                      <button className="accept-button" onClick={() => navigate("/provider/requests")}>
+                        Responder
                       </button>
                     </div>
                   </div>
@@ -191,68 +171,48 @@ function ProviderHomePage({ user, logout }) {
               <h2>Agenda de hoy</h2>
 
               <div className="date-box">
-                <span>Lunes</span>
+                <span>Hoy</span>
 
-                <strong>19</strong>
+                <strong>{new Date().getDate()}</strong>
 
-                <p>Mayo 2026</p>
+                <p>{new Intl.DateTimeFormat("es-MX", { month: "long", year: "numeric" }).format(new Date())}</p>
               </div>
 
-              <div className="agenda-item">
-                <span>09:00</span>
-
-                <div>
-                  <strong>María López</strong>
-
-                  <p>Reparación</p>
+              {activeJobs.slice(0, 3).map((job) => (
+                <div className="agenda-item" key={job.id}>
+                  <span>{job.scheduledAt ? new Date(job.scheduledAt).getHours() : "--"}:00</span>
+                  <div>
+                    <strong>{job.client.nombre}</strong>
+                    <p>{job.title}</p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="agenda-item">
-                <span>14:30</span>
-
-                <div>
-                  <strong>Patricia Ruiz</strong>
-
-                  <p>Emergencia</p>
-                </div>
-              </div>
-
-              <div className="agenda-item">
-                <span>17:00</span>
-
-                <div>
-                  <strong>Roberto Silva</strong>
-
-                  <p>Instalación</p>
-                </div>
-              </div>
+              ))}
             </article>
 
             <article className="verified-card">
               <h2>Prestador Verificado</h2>
 
-              <p>Certificación vigente</p>
+              <p>{profile?.verificado ? "Perfil verificado" : "Verificación pendiente"}</p>
 
               <div>
                 <span>Especialidad</span>
 
-                <strong>Plomería</strong>
+                <strong>{profile?.especialidad || "Sin registrar"}</strong>
               </div>
 
               <div>
                 <span>Experiencia</span>
 
-                <strong>5+ años</strong>
+                <strong>{profile?.experienciaAnios ? `${profile.experienciaAnios} años` : "Sin registrar"}</strong>
               </div>
 
               <div>
-                <span>Certificaciones</span>
+                <span>Zona</span>
 
-                <strong>3 activas</strong>
+                <strong>{profile?.zonaCobertura || "Sin registrar"}</strong>
               </div>
 
-              <button>Ver perfil completo</button>
+              <button onClick={() => navigate("/provider/profile")}>Ver perfil completo</button>
             </article>
           </aside>
         </div>
@@ -262,30 +222,30 @@ function ProviderHomePage({ user, logout }) {
             <div className="section-title">
               <h2>Trabajos activos</h2>
 
-              <span>3 en curso</span>
+              <span>{activeJobs.length} en curso</span>
             </div>
 
             <div className="active-jobs">
               {activeJobs.map((job) => (
                 <article
                   className="dashboard-card job-card"
-                  key={job.name}
+                  key={job.id}
                 >
                   <div>
-                    <h3>{job.name}</h3>
+                    <h3>{job.client.nombre}</h3>
 
-                    <p>{job.description}</p>
+                    <p>{job.title}</p>
 
-                    <span>{job.time}</span>
+                    <span>{dateTime(job.scheduledAt || job.requestedAt)}</span>
                   </div>
 
-                  <strong>{job.status}</strong>
+                  <strong>{statusLabel(job.status)}</strong>
 
                   <div className="progress-bar">
-                    <div style={{ width: `${job.progress}%` }}></div>
+                    <div style={{ width: `${jobProgress(job.status)}%` }}></div>
                   </div>
 
-                  <small>{job.progress}%</small>
+                  <small>{jobProgress(job.status)}%</small>
                 </article>
               ))}
             </div>
@@ -295,21 +255,21 @@ function ProviderHomePage({ user, logout }) {
             <div className="section-title">
               <h2>Ganancias semanales</h2>
 
-              <span>$13,200 total</span>
+              <span>{money(dashboard?.earnings?.weekTotal)} total</span>
             </div>
 
             <article className="dashboard-card earnings-card">
               <div className="bars">
-                {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map(
-                  (day, index) => (
-                    <div key={day}>
+                {(dashboard?.earnings?.weekly || []).map(
+                  (day) => (
+                    <div key={day.date}>
                       <span
                         style={{
-                          height: `${40 + index * 6}px`,
+                          height: `${Math.max(day.amount / 35, 8)}px`,
                         }}
                       ></span>
 
-                      <p>{day}</p>
+                      <p>{new Date(day.date).getDate()}</p>
                     </div>
                   )
                 )}
@@ -319,19 +279,25 @@ function ProviderHomePage({ user, logout }) {
                 <div>
                   <p>Promedio/día</p>
 
-                  <strong>$1,886</strong>
+                  <strong>{money(
+                    (dashboard?.earnings?.weekly || []).length
+                      ? dashboard.earnings.weekTotal / dashboard.earnings.weekly.length
+                      : 0
+                  )}</strong>
                 </div>
 
                 <div>
                   <p>Mejor día</p>
 
-                  <strong>$2,800</strong>
+                  <strong>{money(
+                    Math.max(0, ...(dashboard?.earnings?.weekly || []).map((day) => day.amount))
+                  )}</strong>
                 </div>
 
                 <div>
                   <p>Servicios</p>
 
-                  <strong>18</strong>
+                  <strong>{dashboard?.completedJobs || 0}</strong>
                 </div>
               </div>
             </article>

@@ -48,6 +48,39 @@
   font-size: 28px;
 }
 
+.payment-chip {
+  display: block;
+  margin-top: 10px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.payment-chip.pending,
+.payment-chip.pendiente {
+  color: #d97706;
+  background: #fef3c7;
+}
+
+.payment-chip.paid,
+.payment-chip.pagado {
+  color: #16a34a;
+  background: #dcfce7;
+}
+
+.payment-chip.failed,
+.payment-chip.fallido {
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.payment-chip.refunded,
+.payment-chip.reembolsado {
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
 .client-request-status {
   display: inline-block;
   padding: 9px 13px;
@@ -79,6 +112,22 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-proposal-banner {
+  width: 100%;
+  order: -1;
+  margin-bottom: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #6c3cf0;
+  background: #ede9fe;
+  font-weight: 800;
 }
 
 .danger-job-button {
@@ -95,6 +144,17 @@
   font-weight: 900;
 }
 
+.reviewed-chip {
+  padding: 11px 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #a16207;
+  background: #fef3c7;
+  font-weight: 800;
+}
+
 .client-dashboard-layout.dark .client-request-main h3 {
   color: #f5f5f5;
 }
@@ -107,9 +167,19 @@
   border-color: #333;
 }
 
+.client-dashboard-layout.dark .date-proposal-banner {
+  color: #c7b8ff;
+  background: #2a2147;
+}
+
 .client-dashboard-layout.dark .client-request-icon {
   background: #2a2147;
   color: #c7b8ff;
+}
+
+.client-dashboard-layout.dark .reviewed-chip {
+  color: #facc15;
+  background: #3f3314;
 }
 
 @media (max-width: 800px) {
@@ -129,5 +199,15 @@
   .client-request-actions button {
     width: 100%;
     justify-content: center;
+  }
+
+  .reviewed-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .date-proposal-banner {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

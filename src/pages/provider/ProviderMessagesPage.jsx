@@ -1,34 +1,112 @@
+import { useEffect, useRef, useState } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import {
   FiSearch,
   FiSend,
   FiPhone,
   FiVideo,
 } from 'react-icons/fi'
+import { conversationsApi } from '../../services/api.js'
 
 function ProviderMessagesPage() {
-  const conversations = [
-    {
-      id: 1,
-      name: 'María López',
-      lastMessage: '¿Podría llegar un poco antes?',
-      time: '10:24',
-      unread: true,
-    },
-    {
-      id: 2,
-      name: 'Roberto Silva',
-      lastMessage: 'Perfecto, muchas gracias',
-      time: 'Ayer',
-      unread: false,
-    },
-    {
-      id: 3,
-      name: 'Ana García',
-      lastMessage: 'Te comparto la ubicación',
-      time: 'Lun',
-      unread: false,
-    },
-  ]
+  const { user } = useOutletContext()
+  const [conversations, setConversations] = useState([])
+  const [selected, setSelected] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [draft, setDraft] = useState('')
+  const [message, setMessage] = useState('')
+  const knownMessages = useRef(new Set())
+  const selectedId = selected?.id
+  const selectedName = selected?.otherUser.nombre
+
+  useEffect(() => {
+    let active = true
+
+    async function loadConversations() {
+      try {
+        const response = await conversationsApi.getAll()
+        if (!active) return
+        const data = response.data || []
+        setConversations(data)
+        setSelected((current) => current || data[0] || null)
+      } catch (error) {
+        if (active) setMessage(error.message)
+      }
+    }
+
+    loadConversations()
+    const interval = window.setInterval(loadConversations, 4000)
+
+    return () => {
+      active = false
+      window.clearInterval(interval)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selectedId) return undefined
+
+    let active = true
+    let initialized = false
+    knownMessages.current = new Set()
+
+    async function refreshMessages() {
+      try {
+        const response = await conversationsApi.messages(selectedId)
+        if (!active) return
+        const data = response.data || []
+        const incoming = initialized
+          ? data.find(
+            (chatMessage) =>
+              chatMessage.senderId !== user.id &&
+              !knownMessages.current.has(chatMessage.id),
+          )
+          : null
+
+        setMessages(data)
+        knownMessages.current = new Set(data.map((chatMessage) => chatMessage.id))
+        initialized = true
+        await conversationsApi.read(selectedId)
+        if (!active) return
+        setConversations((current) =>
+          current.map((item) =>
+            item.id === selectedId ? { ...item, unreadCount: 0 } : item,
+          ),
+        )
+
+        if (incoming) {
+          setMessage(`Nuevo mensaje de ${selectedName}.`)
+        }
+      } catch (error) {
+        if (active) setMessage(error.message)
+      }
+    }
+
+    refreshMessages()
+    const interval = window.setInterval(refreshMessages, 2500)
+
+    return () => {
+      active = false
+      window.clearInterval(interval)
+    }
+  }, [selectedId, selectedName, user.id])
+
+  function openConversation(conversation) {
+    setSelected(conversation)
+  }
+
+  async function sendMessage(event) {
+    event.preventDefault()
+    if (!selected || !draft.trim()) return
+
+    try {
+      const sent = await conversationsApi.send(selected.id, draft.trim())
+      setMessages((current) => [...current, sent])
+      setDraft('')
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
 
   return (
     <>
@@ -41,84 +119,84 @@ function ProviderMessagesPage() {
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="messages-layout">
           <aside className="dashboard-card conversations-panel">
             <div className="messages-search">
               <FiSearch />
-              <input
-                type="text"
-                placeholder="Buscar conversación..."
-              />
+              <input type="text" placeholder="Conversaciones de solicitudes" disabled />
             </div>
 
             {conversations.map((chat) => (
               <button
                 key={chat.id}
-                className={`conversation-item ${
-                  chat.id === 1 ? 'active' : ''
-                }`}
+                className={`conversation-item ${selected?.id === chat.id ? 'active' : ''}`}
+                onClick={() => openConversation(chat)}
               >
                 <div className="request-avatar">
-                  {chat.name.charAt(0)}
+                  {chat.otherUser.nombre.charAt(0)}
                 </div>
 
                 <div>
-                  <strong>{chat.name}</strong>
-                  <p>{chat.lastMessage}</p>
+                  <strong>{chat.otherUser.nombre}</strong>
+                  <p>{chat.lastMessage || 'Inicia la conversación'}</p>
                 </div>
 
-                <span>{chat.time}</span>
+                <span>{chat.unreadCount > 0 ? chat.unreadCount : ''}</span>
               </button>
             ))}
           </aside>
 
           <section className="dashboard-card chat-panel">
-            <header className="chat-header">
-              <div className="chat-user">
-                <div className="request-avatar">
-                  M
+            {selected ? (
+              <>
+                <header className="chat-header">
+                  <div className="chat-user">
+                    <div className="request-avatar">
+                      {selected.otherUser.nombre.charAt(0)}
+                    </div>
+
+                    <div>
+                      <strong>{selected.otherUser.nombre}</strong>
+                      <p>Cliente · Actualización automática</p>
+                    </div>
+                  </div>
+
+                  <div className="chat-actions">
+                    <button aria-label="Llamar"><FiPhone /></button>
+                    <button aria-label="Videollamada"><FiVideo /></button>
+                  </div>
+                </header>
+
+                <div className="chat-messages">
+                  {messages.map((chatMessage) => (
+                    <div
+                      className={`message ${chatMessage.senderId === user.id ? 'sent' : 'received'}`}
+                      key={chatMessage.id}
+                    >
+                      {chatMessage.text}
+                    </div>
+                  ))}
                 </div>
 
-                <div>
-                  <strong>María López</strong>
-                  <p>Cliente</p>
-                </div>
-              </div>
+                <form className="chat-input" onSubmit={sendMessage}>
+                  <input
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    placeholder="Escribe un mensaje..."
+                  />
 
-              <div className="chat-actions">
-                <button>
-                  <FiPhone />
-                </button>
-
-                <button>
-                  <FiVideo />
-                </button>
-              </div>
-            </header>
-
-            <div className="chat-messages">
-              <div className="message received">
-                Hola, ¿todavía sigue disponible?
-              </div>
-
-              <div className="message sent">
-                Sí claro, puedo atender hoy.
-              </div>
-
-              <div className="message received">
-                Excelente, gracias.
-              </div>
-            </div>
-
-            <div className="chat-input">
-              <input
-                placeholder="Escribe un mensaje..."
-              />
-
-              <button>
+                  <button aria-label="Enviar"><FiSend /></button>
+                </form>
+              </>
+            ) : (
+              <div className="empty-state-card">
                 <FiSend />
-              </button>
-            </div>
+                <h2>Sin conversaciones</h2>
+                <p>Las solicitudes de clientes aparecerán aquí.</p>
+              </div>
+            )}
           </section>
         </div>
       </section>

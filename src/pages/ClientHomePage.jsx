@@ -11,6 +11,11 @@ import {
   FiTruck,
   FiSettings,
 } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { authApi, categoriesApi, dashboardApi } from "../services/api.js";
+import { dateTime, money } from "../utils/formatters.js";
+import RequestServiceModal from "./client/RequestServiceModal.jsx";
 
 function ClientHomePage({
   user,
@@ -20,52 +25,24 @@ function ClientHomePage({
   darkMode,
   toggleTheme,
 }) {
-  const categories = [
-    { icon: <FiTool />, label: "Plomero", count: "245" },
-    { icon: <FiZap />, label: "Electricista", count: "189" },
-    { icon: <FiDroplet />, label: "Limpieza", count: "312" },
-    { icon: <FiEdit3 />, label: "Pintor", count: "156" },
-    { icon: <FiTruck />, label: "Mecánico", count: "203" },
-    { icon: <FiSettings />, label: "Técnico", count: "167" },
-  ];
+  const navigate = useNavigate();
+  const [categories, setCategories] = useState([]);
+  const [dashboard, setDashboard] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [message, setMessage] = useState("");
+  const [serviceToRequest, setServiceToRequest] = useState(null);
 
-  const fallbackServices = [
-    {
-      id: 1,
-      nombre: "Carlos Mendoza",
-      oficio: "Plomero certificado",
-      precio: 250,
-      distancia: "1.2 km",
-      disponibilidad: "Disponible",
-      rating: 4.8,
-      reviews: 124,
-      verificado: true,
-    },
-    {
-      id: 2,
-      nombre: "Ana García",
-      oficio: "Electricista profesional",
-      precio: 300,
-      distancia: "2.5 km",
-      disponibilidad: "Hoy",
-      rating: 4.9,
-      reviews: 98,
-      verificado: true,
-    },
-    {
-      id: 3,
-      nombre: "Luis Hernández",
-      oficio: "Pintor experto",
-      precio: 200,
-      distancia: "0.8 km",
-      disponibilidad: "Disponible",
-      rating: 4.7,
-      reviews: 76,
-      verificado: false,
-    },
-  ];
+  useEffect(() => {
+    Promise.all([categoriesApi.getAll(), dashboardApi.client(), authApi.profile()])
+      .then(([categoryResponse, dashboardResponse, profileResponse]) => {
+        setCategories(categoryResponse.data || []);
+        setDashboard(dashboardResponse);
+        setProfile(profileResponse);
+      })
+      .catch((error) => setMessage(error.message));
+  }, []);
 
-  const servicesToShow = services.length > 0 ? services : fallbackServices;
+  const categoryIcons = [<FiTool />, <FiZap />, <FiDroplet />, <FiEdit3 />, <FiTruck />, <FiSettings />];
 
   return (
     <main className={darkMode ? "client-dashboard dark" : "client-dashboard"}>
@@ -78,13 +55,13 @@ function ClientHomePage({
           <div className="provider-hero-top">
             <div>
               <p>Hola,</p>
-              <h1>{user?.nombre || "María López"}</h1>
+              <h1>{user?.nombre || "Cliente"}</h1>
             </div>
 
             <div className="provider-actions">
               <button className="available-pill">
                 <FiMapPin />
-                León, Guanajuato
+                {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado].filter(Boolean).join(", ") || "Ubicación sin registrar"}
               </button>
 
               <button className="avatar-button">
@@ -104,15 +81,17 @@ function ClientHomePage({
         </header>
 
         <section className="provider-content">
+          {message && <p className="status-message api-feedback">{message}</p>}
+
           <div className="stats-grid">
             <article className="dashboard-card stat-card-pro">
               <div className="stat-icon cyan">
                 <FiBriefcase />
               </div>
 
-              <h2>3</h2>
+              <h2>{dashboard?.activeRequests || 0}</h2>
               <p>Solicitudes activas</p>
-              <span>↗ 2 en proceso</span>
+              <span>Servicios en seguimiento</span>
             </article>
 
             <article className="dashboard-card stat-card-pro">
@@ -120,9 +99,9 @@ function ClientHomePage({
                 <FiStar />
               </div>
 
-              <h2>4.9</h2>
-              <p>Promedio recibido</p>
-              <span>↗ Buena experiencia</span>
+              <h2>{dashboard?.favorites || 0}</h2>
+              <p>Favoritos</p>
+              <span>Prestadores guardados</span>
             </article>
 
             <article className="dashboard-card stat-card-pro">
@@ -130,31 +109,35 @@ function ClientHomePage({
                 <FiClock />
               </div>
 
-              <h2>12</h2>
+              <h2>{dashboard?.completedServices || 0}</h2>
               <p>Servicios completados</p>
-              <span>↗ Historial activo</span>
+              <span>Historial activo</span>
             </article>
 
             <article className="dashboard-card stat-card-pro">
               <div className="stat-icon purple">$</div>
 
-              <h2>$2,450</h2>
+              <h2>{money(dashboard?.monthSpent)}</h2>
               <p>Gastado este mes</p>
-              <span>↗ Control de gastos</span>
+              <span>Control de gastos</span>
             </article>
           </div>
 
           <div className="section-title">
             <h2>Categorías populares</h2>
-            <button>Ver todas</button>
+            <button onClick={() => navigate("/client/search")}>Ver todas</button>
           </div>
 
           <div className="client-category-grid dashboard-categories">
-            {categories.map((category) => (
-              <button className="client-category-card" key={category.label}>
-                <div>{category.icon}</div>
-                <strong>{category.label}</strong>
-                <span>{category.count} disponibles</span>
+            {categories.map((category, index) => (
+              <button
+                className="client-category-card"
+                key={category.id}
+                onClick={() => navigate("/client/search", { state: { categoryId: category.id } })}
+              >
+                <div>{categoryIcons[index % categoryIcons.length]}</div>
+                <strong>{category.nombre}</strong>
+                <span>{category.providersAvailable} disponibles</span>
               </button>
             ))}
           </div>
@@ -167,7 +150,7 @@ function ClientHomePage({
               </div>
 
               <div className="client-services-list">
-                {servicesToShow.map((service) => {
+                {services.map((service) => {
                   const name = service.nombre || service.titulo || "Servicio";
 
                   const oficio =
@@ -192,27 +175,27 @@ function ClientHomePage({
                         <div className="service-meta">
                           <span>
                             <FiStar />
-                            <strong>{service.rating || 4.8}</strong>(
-                            {service.reviews || 120})
+                            <strong>{service.rating?.toFixed(1) || "0.0"}</strong>(
+                            {service.reviews || 0})
                           </span>
 
                           <span>
                             <FiMapPin />
-                            {service.distancia || "1.2 km"}
+                            {service.distancia || "Sin distancia"}
                           </span>
 
                           <span>
                             <FiClock />
-                            {service.disponibilidad || "Disponible"}
+                            {service.disponibilidad}
                           </span>
                         </div>
                       </div>
 
                       <div className="client-provider-price">
-                        <strong>${service.precio || 250}</strong>
+                        <strong>{money(service.precio)}</strong>
                         <span>por hora</span>
 
-                        <button>Solicitar</button>
+                        <button onClick={() => setServiceToRequest(service)}>Solicitar</button>
                       </div>
                     </article>
                   );
@@ -224,29 +207,17 @@ function ClientHomePage({
               <article className="dashboard-card agenda-card">
                 <h2>Mis próximas chambas</h2>
 
-                <div className="agenda-item">
-                  <span>Hoy</span>
-                  <div>
-                    <strong>Reparación de fuga</strong>
-                    <p>14:30 - Carlos Mendoza</p>
+                {(dashboard?.upcoming || []).map((item) => (
+                  <div className="agenda-item" key={item.id}>
+                    <span>{new Date(item.scheduledAt).getDate()}</span>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p>{dateTime(item.scheduledAt)} - {item.provider.nombre}</p>
+                    </div>
                   </div>
-                </div>
+                ))}
 
-                <div className="agenda-item">
-                  <span>Jue</span>
-                  <div>
-                    <strong>Limpieza profunda</strong>
-                    <p>10:00 - Ana García</p>
-                  </div>
-                </div>
-
-                <div className="agenda-item">
-                  <span>Vie</span>
-                  <div>
-                    <strong>Pintura de habitación</strong>
-                    <p>16:00 - Luis Hernández</p>
-                  </div>
-                </div>
+                {dashboard?.upcoming?.length === 0 && <p>Sin servicios agendados.</p>}
               </article>
 
               <article className="verified-card">
@@ -259,20 +230,32 @@ function ClientHomePage({
 
                 <div>
                   <span>Prestadores verificados</span>
-                  <strong>+500</strong>
+                  <strong>Consulta el perfil</strong>
                 </div>
 
                 <div>
-                  <span>Soporte</span>
-                  <strong>24/7</strong>
+                  <span>Reseñas</span>
+                  <strong>Antes de contratar</strong>
                 </div>
 
-                <button>Ver recomendaciones</button>
+                <button onClick={() => navigate("/client/search")}>Ver prestadores</button>
               </article>
             </aside>
           </div>
         </section>
       </section>
+
+      {serviceToRequest && (
+        <RequestServiceModal
+          service={serviceToRequest}
+          onClose={() => setServiceToRequest(null)}
+          onCreated={async () => {
+            setMessage(`Solicitud agendada y enviada a ${serviceToRequest.nombre}.`);
+            setServiceToRequest(null);
+            setDashboard(await dashboardApi.client());
+          }}
+        />
+      )}
     </main>
   );
 }

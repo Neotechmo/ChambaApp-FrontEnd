@@ -1,26 +1,37 @@
+import { useEffect, useState } from 'react'
 import {
   FiDollarSign,
   FiTrendingUp,
   FiCreditCard,
   FiDownload,
 } from 'react-icons/fi'
+import { providerApi } from '../../services/api.js'
+import { money, shortDate } from '../../utils/formatters.js'
 
 function ProviderEarningsPage() {
-  const weekly = [
-    { day: 'Lun', amount: 1200 },
-    { day: 'Mar', amount: 1800 },
-    { day: 'Mié', amount: 950 },
-    { day: 'Jue', amount: 2200 },
-    { day: 'Vie', amount: 2800 },
-    { day: 'Sáb', amount: 3100 },
-    { day: 'Dom', amount: 1150 },
-  ]
+  const [summary, setSummary] = useState(null)
+  const [transactions, setTransactions] = useState([])
+  const [message, setMessage] = useState('')
 
-  const transactions = [
-    { id: 1, client: 'María López', service: 'Reparación de fuga', amount: 350, status: 'Pagado' },
-    { id: 2, client: 'Roberto Silva', service: 'Instalación de lavabo', amount: 500, status: 'Pendiente' },
-    { id: 3, client: 'Patricia Ruiz', service: 'Emergencia tubería', amount: 450, status: 'Pagado' },
-  ]
+  useEffect(() => {
+    loadEarnings()
+  }, [])
+
+  async function loadEarnings() {
+    try {
+      const [earningsResponse, transactionsResponse] = await Promise.all([
+        providerApi.earnings(),
+        providerApi.transactions(),
+      ])
+      setSummary(earningsResponse)
+      setTransactions(transactionsResponse.data || [])
+    } catch (error) {
+      setMessage(error.message)
+    }
+  }
+
+  const weekly = summary?.weekly || []
+  const highest = weekly.reduce((max, day) => Math.max(max, day.amount), 1)
 
   return (
     <>
@@ -32,52 +43,54 @@ function ProviderEarningsPage() {
         </div>
 
         <div className="provider-page-actions">
-          <button className="outline-action-button">
+          <button className="outline-action-button" onClick={loadEarnings}>
             <FiDownload />
-            Descargar reporte
+            Actualizar
           </button>
 
-          <button className="solid-action-button">
-            Retirar saldo
+          <button className="solid-action-button" disabled title="Pendiente en backend">
+            Retiros próximamente
           </button>
         </div>
       </header>
 
       <section className="provider-content">
+        {message && <p className="status-message api-feedback">{message}</p>}
+
         <div className="requests-summary-grid">
           <article className="dashboard-card request-summary-card">
-            <h2>$24,500</h2>
+            <h2>{money(summary?.monthTotal)}</h2>
             <p>Ganancias del mes</p>
-            <span>+18% vs mes anterior</span>
+            <span>{summary?.monthlyGrowthPercent || 0}% vs mes anterior</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>$13,200</h2>
-            <p>Esta semana</p>
-            <span>18 servicios realizados</span>
+            <h2>{money(summary?.weekTotal)}</h2>
+            <p>Periodo consultado</p>
+            <span>Pagos registrados</span>
           </article>
 
           <article className="dashboard-card request-summary-card">
-            <h2>$1,250</h2>
+            <h2>{money(summary?.availableBalance)}</h2>
             <p>Saldo disponible</p>
-            <span>Listo para retirar</span>
+            <span>Registro informativo</span>
           </article>
         </div>
 
         <div className="provider-grid">
           <section>
             <div className="section-title">
-              <h2>Ganancias semanales</h2>
-              <button>Ver detalle</button>
+              <h2>Ganancias por día</h2>
+              <button onClick={loadEarnings}>Actualizar</button>
             </div>
 
             <article className="dashboard-card earnings-detail-card">
               <div className="earnings-bars-large">
                 {weekly.map((item) => (
-                  <div key={item.day}>
-                    <span style={{ height: `${item.amount / 35}px` }}></span>
-                    <strong>${item.amount}</strong>
-                    <p>{item.day}</p>
+                  <div key={item.date}>
+                    <span style={{ height: `${Math.max((item.amount / highest) * 180, 8)}px` }}></span>
+                    <strong>{money(item.amount)}</strong>
+                    <p>{shortDate(item.date)}</p>
                   </div>
                 ))}
               </div>
@@ -90,10 +103,10 @@ function ProviderEarningsPage() {
                 <FiDollarSign />
               </div>
 
-              <h2>$1,250</h2>
+              <h2>{money(summary?.availableBalance)}</h2>
               <p>Saldo disponible</p>
 
-              <button>Solicitar retiro</button>
+              <button disabled>Retiro no disponible</button>
             </article>
 
             <article className="dashboard-card earnings-balance-card">
@@ -101,17 +114,17 @@ function ProviderEarningsPage() {
                 <FiTrendingUp />
               </div>
 
-              <h2>+18%</h2>
+              <h2>{summary?.monthlyGrowthPercent || 0}%</h2>
               <p>Crecimiento mensual</p>
 
-              <button>Ver métricas</button>
+              <button onClick={loadEarnings}>Actualizar métricas</button>
             </article>
           </aside>
         </div>
 
         <div className="section-title bottom-grid">
           <h2>Últimos pagos</h2>
-          <button>Ver todos</button>
+          <button onClick={loadEarnings}>Actualizar</button>
         </div>
 
         <div className="transactions-list">
@@ -122,14 +135,18 @@ function ProviderEarningsPage() {
               </div>
 
               <div>
-                <h3>{transaction.client}</h3>
-                <p>{transaction.service}</p>
+                <h3>
+                  {[transaction.solicitud?.cliente?.nombre, transaction.solicitud?.cliente?.apellido]
+                    .filter(Boolean)
+                    .join(' ')}
+                </h3>
+                <p>{transaction.solicitud?.servicio?.titulo}</p>
               </div>
 
-              <strong>${transaction.amount}</strong>
+              <strong>{money(transaction.monto)}</strong>
 
-              <span className={`transaction-status ${transaction.status.toLowerCase()}`}>
-                {transaction.status}
+              <span className={`transaction-status ${transaction.estado === 'paid' ? 'pagado' : 'pendiente'}`}>
+                {transaction.estado === 'paid' ? 'Pagado' : transaction.estado}
               </span>
             </article>
           ))}

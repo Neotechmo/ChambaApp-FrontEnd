@@ -31,8 +31,16 @@
 .client-search-toolbar {
   margin-bottom: 28px;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(230px, 1fr) auto auto auto;
   gap: 14px;
+}
+
+.client-search-toolbar select {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 0 14px;
+  color: #172033;
+  background: white;
 }
 
 .client-search-input {
@@ -90,6 +98,12 @@
   color: #f5f5f5;
 }
 
+.client-dashboard-layout.dark .client-search-toolbar select {
+  color: #f5f5f5;
+  background: #1d1d1d;
+  border-color: #333;
+}
+
 .client-dashboard-layout.dark .client-search-input input {
   color: #f5f5f5;
 }
@@ -106,6 +120,10 @@
   .client-search-toolbar,
   .client-result-card {
     grid-template-columns: 1fr;
+  }
+
+  .client-search-toolbar select {
+    min-height: 48px;
   }
 
   .client-provider-price {

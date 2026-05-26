@@ -1,0 +1,74 @@
+.provider-services-list {
+  display: grid;
+  gap: 16px;
+}
+
+.provider-service-card {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 18px;
+}
+
+.provider-service-card h3,
+.provider-service-card p {
+  margin: 0;
+}
+
+.provider-service-card p,
+.provider-service-card small,
+.provider-service-card strong span {
+  color: #667085;
+}
+
+.provider-service-card small {
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.provider-service-card strong {
+  color: #6c3cf0;
+  font-size: 22px;
+}
+
+.provider-service-card strong span {
+  display: block;
+  font-size: 12px;
+}
+
+.provider-service-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.provider-service-actions .danger-job-button {
+  padding: 13px;
+}
+
+.provider-layout.dark .provider-service-card h3 {
+  color: #f5f5f5;
+}
+
+.provider-layout.dark .provider-service-card p,
+.provider-layout.dark .provider-service-card small,
+.provider-layout.dark .provider-service-card strong span {
+  color: #a1a1aa;
+}
+
+@media (max-width: 950px) {
+  .provider-service-card {
+    grid-template-columns: auto 1fr;
+  }
+
+  .provider-service-card > strong,
+  .provider-service-actions {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .provider-service-actions {
+    flex-direction: column;
+  }
+}

@@ -28,6 +28,7 @@ import ProviderProfilePage from "./pages/provider/ProviderProfilePage.jsx";
 import ProviderCalendarPage from "./pages/provider/ProviderCalendarPage.jsx";
 import ProviderEarningsPage from "./pages/provider/ProviderEarningsPage.jsx";
 import ProviderReviewsPage from "./pages/provider/ProviderReviewsPage.jsx";
+import ProviderServicesPage from "./pages/provider/ProviderServicesPage.jsx";
 import ProviderLayout from "./layouts/ProviderLayout.jsx";
 
 const initialLogin = {
@@ -78,7 +79,7 @@ function AppRoutes() {
 
   async function loadServices() {
     try {
-      const data = await servicesApi.getAll();
+      const data = await servicesApi.getAll({ available: true });
       setServices(Array.isArray(data) ? data : data?.data || []);
     } catch (error) {
       console.warn(error.message);
@@ -271,6 +272,7 @@ function AppRoutes() {
         <Route path="earnings" element={<ProviderEarningsPage />} />
         <Route path="reviews" element={<ProviderReviewsPage />} />
         <Route path="profile" element={<ProviderProfilePage />} />
+        <Route path="services" element={<ProviderServicesPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to={getHomePath()} replace />} />
