@@ -4,6 +4,12 @@
   gap: 20px;
 }
 
+.profile-loading-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.6fr;
+  gap: 20px;
+}
+
 .profile-main-card,
 .profile-info-card,
 .profile-description-card {
@@ -12,6 +18,60 @@
 
 .profile-main-card {
   text-align: center;
+}
+
+.profile-skeleton-card {
+  min-height: 260px;
+}
+
+.skeleton-avatar,
+.skeleton-line,
+.skeleton-row,
+.skeleton-button {
+  border-radius: 999px;
+  background: linear-gradient(90deg, #eef0f6 25%, #f7f8fb 37%, #eef0f6 63%);
+  background-size: 400% 100%;
+  animation: skeletonPulse 1.25s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 22px;
+  border-radius: 32px;
+}
+
+.skeleton-line {
+  width: 46%;
+  height: 16px;
+  margin: 12px auto;
+}
+
+.skeleton-line.wide {
+  width: 68%;
+}
+
+.skeleton-row {
+  width: 100%;
+  height: 46px;
+  border-radius: 14px;
+}
+
+.skeleton-button {
+  width: 100%;
+  height: 46px;
+  margin-top: 26px;
+  border-radius: 14px;
+}
+
+@keyframes skeletonPulse {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
 }
 
 .profile-avatar-large {
@@ -185,8 +245,21 @@
   color: #c7b8ff;
 }
 
+.provider-layout.dark .skeleton-avatar,
+.provider-layout.dark .skeleton-line,
+.provider-layout.dark .skeleton-row,
+.provider-layout.dark .skeleton-button,
+.client-dashboard-layout.dark .skeleton-avatar,
+.client-dashboard-layout.dark .skeleton-line,
+.client-dashboard-layout.dark .skeleton-row,
+.client-dashboard-layout.dark .skeleton-button {
+  background: linear-gradient(90deg, #27272f 25%, #343442 37%, #27272f 63%);
+  background-size: 400% 100%;
+}
+
 @media (max-width: 900px) {
-  .profile-grid {
+  .profile-grid,
+  .profile-loading-grid {
     grid-template-columns: 1fr;
   }
 }

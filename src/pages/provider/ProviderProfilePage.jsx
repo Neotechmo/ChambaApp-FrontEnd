@@ -11,9 +11,11 @@ import {
   FiX,
 } from 'react-icons/fi'
 import { authApi, providerApi } from '../../services/api.js'
+import { setStable } from '../../utils/state.js'
 
 function ProviderProfilePage() {
   const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [reviews, setReviews] = useState({ average: 0, total: 0 })
   const [message, setMessage] = useState('')
   const [editOpen, setEditOpen] = useState(false)
@@ -29,10 +31,11 @@ function ProviderProfilePage() {
   useEffect(() => {
     Promise.all([authApi.profile(), providerApi.reviews()])
       .then(([profileResponse, reviewsResponse]) => {
-        setProfile(profileResponse)
-        setReviews(reviewsResponse.summary)
+        setStable(setProfile, profileResponse)
+        setStable(setReviews, reviewsResponse.summary || { average: 0, total: 0 })
       })
       .catch((error) => setMessage(error.message))
+      .finally(() => setLoading(false))
   }, [])
 
   function openEditor() {
@@ -79,7 +82,7 @@ function ProviderProfilePage() {
         </div>
 
         <div className="provider-page-actions">
-          <button className="solid-action-button" onClick={openEditor}>
+          <button className="solid-action-button" onClick={openEditor} disabled={loading}>
             <FiEdit3 />
             Editar perfil
           </button>
@@ -89,84 +92,104 @@ function ProviderProfilePage() {
       <section className="provider-content">
         {message && <p className="status-message api-feedback">{message}</p>}
 
-        <div className="profile-grid">
-          <article className="dashboard-card profile-main-card">
-            <div className="profile-avatar-large">{name.charAt(0)}</div>
+        {loading ? (
+          <div className="profile-loading-grid" aria-label="Cargando perfil">
+            <article className="dashboard-card profile-main-card profile-skeleton-card">
+              <div className="skeleton-avatar"></div>
+              <div className="skeleton-line wide"></div>
+              <div className="skeleton-line"></div>
+              <div className="skeleton-button"></div>
+            </article>
 
-            <h2>{name}</h2>
-            <p>{profile?.especialidad || 'Prestador de servicios'}</p>
+            <article className="dashboard-card profile-info-card profile-skeleton-card">
+              <div className="skeleton-line wide"></div>
+              <div className="skeleton-row"></div>
+              <div className="skeleton-row"></div>
+              <div className="skeleton-row"></div>
+            </article>
+          </div>
+        ) : (
+          <>
+            <div className="profile-grid">
+              <article className="dashboard-card profile-main-card">
+                <div className="profile-avatar-large">{name.charAt(0)}</div>
 
-            <div className="profile-rating">
-              <FiStar />
-              <strong>{reviews.average.toFixed(1)}</strong>
-              <span>{reviews.total} reseñas</span>
+                <h2>{name}</h2>
+                <p>{profile?.especialidad || 'Prestador de servicios'}</p>
+
+                <div className="profile-rating">
+                  <FiStar />
+                  <strong>{reviews.average.toFixed(1)}</strong>
+                  <span>{reviews.total} reseñas</span>
+                </div>
+
+                <button onClick={openEditor}>Actualizar información</button>
+              </article>
+
+              <article className="dashboard-card profile-info-card">
+                <h2>Información personal</h2>
+
+                <div>
+                  <FiUser />
+                  <span>Nombre</span>
+                  <strong>{name}</strong>
+                </div>
+
+                <div>
+                  <FiMail />
+                  <span>Correo</span>
+                  <strong>{profile?.correo || '-'}</strong>
+                </div>
+
+                <div>
+                  <FiPhone />
+                  <span>Teléfono</span>
+                  <strong>{profile?.telefono || '-'}</strong>
+                </div>
+
+                <div>
+                  <FiMapPin />
+                  <span>Zona</span>
+                  <strong>{profile?.zonaCobertura || '-'}</strong>
+                </div>
+              </article>
             </div>
 
-            <button onClick={openEditor}>Actualizar información</button>
-          </article>
+            <div className="profile-grid bottom-grid">
+              <article className="dashboard-card profile-info-card">
+                <h2>Perfil laboral</h2>
 
-          <article className="dashboard-card profile-info-card">
-            <h2>Información personal</h2>
+                <div>
+                  <FiBriefcase />
+                  <span>Especialidad</span>
+                  <strong>{profile?.especialidad || '-'}</strong>
+                </div>
 
-            <div>
-              <FiUser />
-              <span>Nombre</span>
-              <strong>{name}</strong>
+                <div>
+                  <FiAward />
+                  <span>Experiencia</span>
+                  <strong>{profile?.experienciaAnios ? `${profile.experienciaAnios} años` : '-'}</strong>
+                </div>
+
+                <div>
+                  <FiStar />
+                  <span>Precio por hora</span>
+                  <strong>${profile?.precioHora || 0}</strong>
+                </div>
+              </article>
+
+              <article className="dashboard-card profile-description-card">
+                <h2>Descripción</h2>
+
+                <p>{profile?.descripcion || 'Agrega una descripción de tus servicios.'}</p>
+
+                <div className="profile-tags">
+                  {(profile?.etiquetas || []).map((tag) => <span key={tag}>{tag}</span>)}
+                </div>
+              </article>
             </div>
-
-            <div>
-              <FiMail />
-              <span>Correo</span>
-              <strong>{profile?.correo || '-'}</strong>
-            </div>
-
-            <div>
-              <FiPhone />
-              <span>Teléfono</span>
-              <strong>{profile?.telefono || '-'}</strong>
-            </div>
-
-            <div>
-              <FiMapPin />
-              <span>Zona</span>
-              <strong>{profile?.zonaCobertura || '-'}</strong>
-            </div>
-          </article>
-        </div>
-
-        <div className="profile-grid bottom-grid">
-          <article className="dashboard-card profile-info-card">
-            <h2>Perfil laboral</h2>
-
-            <div>
-              <FiBriefcase />
-              <span>Especialidad</span>
-              <strong>{profile?.especialidad || '-'}</strong>
-            </div>
-
-            <div>
-              <FiAward />
-              <span>Experiencia</span>
-              <strong>{profile?.experienciaAnios ? `${profile.experienciaAnios} años` : '-'}</strong>
-            </div>
-
-            <div>
-              <FiStar />
-              <span>Precio por hora</span>
-              <strong>${profile?.precioHora || 0}</strong>
-            </div>
-          </article>
-
-          <article className="dashboard-card profile-description-card">
-            <h2>Descripción</h2>
-
-            <p>{profile?.descripcion || 'Agrega una descripción de tus servicios.'}</p>
-
-            <div className="profile-tags">
-              {(profile?.etiquetas || []).map((tag) => <span key={tag}>{tag}</span>)}
-            </div>
-          </article>
-        </div>
+          </>
+        )}
       </section>
 
       {editOpen && (

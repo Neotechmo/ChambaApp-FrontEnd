@@ -16,6 +16,7 @@ import { setStable } from '../../utils/state.js'
 
 function ClientProfilePage() {
   const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
   const [editOpen, setEditOpen] = useState(false)
   const [addressOpen, setAddressOpen] = useState(false)
@@ -36,6 +37,7 @@ function ClientProfilePage() {
         setStable(setAddresses, addressResponse.data || [])
       })
       .catch((error) => setMessage(error.message))
+      .finally(() => setLoading(false))
   }, [])
 
   function openEditor() {
@@ -97,121 +99,141 @@ function ClientProfilePage() {
       <section className="provider-content">
         {message && <p className="status-message api-feedback">{message}</p>}
 
-        <div className="profile-grid">
-          <article className="dashboard-card profile-main-card">
-            <div className="profile-avatar-large">
-              {name.charAt(0)}
-            </div>
+        {loading ? (
+          <div className="profile-loading-grid" aria-label="Cargando perfil">
+            <article className="dashboard-card profile-main-card profile-skeleton-card">
+              <div className="skeleton-avatar"></div>
+              <div className="skeleton-line wide"></div>
+              <div className="skeleton-line"></div>
+              <div className="skeleton-button"></div>
+            </article>
 
-            <h2>{name}</h2>
-
-            <p>{profile?.verificado ? 'Usuario verificado' : 'Cliente'}</p>
-
-            <div className="profile-rating">
-              <FiStar />
-              <strong>{stats.ratingExperiencia?.toFixed(1) || '0.0'}</strong>
-              <span>Experiencia promedio</span>
-            </div>
-
-            <button onClick={openEditor}>
-              <FiEdit3 />
-              Editar perfil
-            </button>
-          </article>
-
-          <article className="dashboard-card profile-info-card">
-            <h2>Información personal</h2>
-
-            <div>
-              <FiUser />
-              <span>Nombre</span>
-              <strong>{name}</strong>
-            </div>
-
-            <div>
-              <FiMail />
-              <span>Correo</span>
-              <strong>{profile?.correo || '-'}</strong>
-            </div>
-
-            <div>
-              <FiPhone />
-              <span>Teléfono</span>
-              <strong>{profile?.telefono || '-'}</strong>
-            </div>
-
-            <div>
-              <FiMapPin />
-              <span>Ubicación</span>
-              <strong>
-                {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado]
-                  .filter(Boolean)
-                  .join(', ') || '-'}
-              </strong>
-            </div>
-          </article>
-        </div>
-
-        <div className="profile-grid bottom-grid">
-          <article className="dashboard-card profile-info-card">
-            <h2>Actividad</h2>
-
-            <div>
-              <FiBriefcase />
-              <span>Servicios solicitados</span>
-              <strong>{stats.solicitudes || 0}</strong>
-            </div>
-
-            <div>
-              <FiStar />
-              <span>Prestadores favoritos</span>
-              <strong>{stats.favoritos || 0}</strong>
-            </div>
-
-            <div>
-              <FiBriefcase />
-              <span>Servicios completados</span>
-              <strong>{stats.completados || 0}</strong>
-            </div>
-          </article>
-
-          <article className="dashboard-card profile-description-card">
-            <h2>Preferencias</h2>
-
-            <p>
-              Tus preferencias y notificaciones se recuperan desde tu perfil
-              para personalizar la experiencia.
-            </p>
-
-            <div className="profile-tags">
-              {categories.length > 0 ? (
-                categories.map((category) => <span key={category}>{category}</span>)
-              ) : (
-                <span>Sin categorías registradas</span>
-              )}
-            </div>
-          </article>
-        </div>
-
-        <article className="dashboard-card saved-addresses-card">
-          <div className="section-title">
-            <h2>Mis direcciones</h2>
-            <button onClick={() => setAddressOpen(true)}>
-              <FiPlus />
-              Nueva dirección
-            </button>
+            <article className="dashboard-card profile-info-card profile-skeleton-card">
+              <div className="skeleton-line wide"></div>
+              <div className="skeleton-row"></div>
+              <div className="skeleton-row"></div>
+              <div className="skeleton-row"></div>
+            </article>
           </div>
-          <div className="saved-address-grid">
-            {addresses.map((item) => (
-              <div key={item.id}>
-                <FiMapPin />
-                <strong>{item.etiqueta || 'Dirección guardada'}</strong>
-                <span>{item.calle}, {item.ciudad}, {item.estado}</span>
+        ) : (
+          <>
+            <div className="profile-grid">
+              <article className="dashboard-card profile-main-card">
+                <div className="profile-avatar-large">
+                  {name.charAt(0)}
+                </div>
+
+                <h2>{name}</h2>
+
+                <p>{profile?.verificado ? 'Usuario verificado' : 'Cliente'}</p>
+
+                <div className="profile-rating">
+                  <FiStar />
+                  <strong>{stats.ratingExperiencia?.toFixed(1) || '0.0'}</strong>
+                  <span>Experiencia promedio</span>
+                </div>
+
+                <button onClick={openEditor}>
+                  <FiEdit3 />
+                  Editar perfil
+                </button>
+              </article>
+
+              <article className="dashboard-card profile-info-card">
+                <h2>Información personal</h2>
+
+                <div>
+                  <FiUser />
+                  <span>Nombre</span>
+                  <strong>{name}</strong>
+                </div>
+
+                <div>
+                  <FiMail />
+                  <span>Correo</span>
+                  <strong>{profile?.correo || '-'}</strong>
+                </div>
+
+                <div>
+                  <FiPhone />
+                  <span>Teléfono</span>
+                  <strong>{profile?.telefono || '-'}</strong>
+                </div>
+
+                <div>
+                  <FiMapPin />
+                  <span>Ubicación</span>
+                  <strong>
+                    {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado]
+                      .filter(Boolean)
+                      .join(', ') || '-'}
+                  </strong>
+                </div>
+              </article>
+            </div>
+
+            <div className="profile-grid bottom-grid">
+              <article className="dashboard-card profile-info-card">
+                <h2>Actividad</h2>
+
+                <div>
+                  <FiBriefcase />
+                  <span>Servicios solicitados</span>
+                  <strong>{stats.solicitudes || 0}</strong>
+                </div>
+
+                <div>
+                  <FiStar />
+                  <span>Prestadores favoritos</span>
+                  <strong>{stats.favoritos || 0}</strong>
+                </div>
+
+                <div>
+                  <FiBriefcase />
+                  <span>Servicios completados</span>
+                  <strong>{stats.completados || 0}</strong>
+                </div>
+              </article>
+
+              <article className="dashboard-card profile-description-card">
+                <h2>Preferencias</h2>
+
+                <p>
+                  Tus preferencias y notificaciones se recuperan desde tu perfil
+                  para personalizar la experiencia.
+                </p>
+
+                <div className="profile-tags">
+                  {categories.length > 0 ? (
+                    categories.map((category) => <span key={category}>{category}</span>)
+                  ) : (
+                    <span>Sin categorías registradas</span>
+                  )}
+                </div>
+              </article>
+            </div>
+
+            <article className="dashboard-card saved-addresses-card">
+              <div className="section-title">
+                <h2>Mis direcciones</h2>
+                <button onClick={() => setAddressOpen(true)}>
+                  <FiPlus />
+                  Nueva dirección
+                </button>
               </div>
-            ))}
-            {addresses.length === 0 && <p>No tienes direcciones guardadas.</p>}
-          </div>
-        </article>
+              <div className="saved-address-grid">
+                {addresses.map((item) => (
+                  <div key={item.id}>
+                    <FiMapPin />
+                    <strong>{item.etiqueta || 'Dirección guardada'}</strong>
+                    <span>{item.calle}, {item.ciudad}, {item.estado}</span>
+                  </div>
+                ))}
+                {addresses.length === 0 && <p>No tienes direcciones guardadas.</p>}
+              </div>
+            </article>
+          </>
+        )}
       </section>
 
       {editOpen && (
