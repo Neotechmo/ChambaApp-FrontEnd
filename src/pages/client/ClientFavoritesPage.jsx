@@ -8,6 +8,7 @@ import {
 } from 'react-icons/fi'
 import { favoritesApi } from '../../services/api.js'
 import { money } from '../../utils/formatters.js'
+import { setStable } from '../../utils/state.js'
 import RequestServiceModal from './RequestServiceModal.jsx'
 
 function ClientFavoritesPage() {
@@ -25,7 +26,7 @@ function ClientFavoritesPage() {
 
     try {
       const response = await favoritesApi.getAll()
-      setFavorites(response.data || [])
+      setStable(setFavorites, response.data || [])
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -64,25 +65,37 @@ function ClientFavoritesPage() {
       <section className="provider-content">
         {message && <p className="status-message api-feedback">{message}</p>}
 
-        <div className="requests-summary-grid">
-          <article className="dashboard-card request-summary-card">
-            <h2>{favorites.length}</h2>
-            <p>Guardados</p>
-            <span>Prestadores favoritos</span>
-          </article>
+        {loading ? (
+          <div className="requests-summary-grid">
+            {[1, 2, 3].map((item) => (
+              <article className="dashboard-card request-summary-card dashboard-skeleton-card" key={item}>
+                <div className="skeleton-line wide"></div>
+                <div className="skeleton-line"></div>
+                <div className="skeleton-line wide"></div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="requests-summary-grid">
+            <article className="dashboard-card request-summary-card">
+              <h2>{favorites.length}</h2>
+              <p>Guardados</p>
+              <span>Prestadores favoritos</span>
+            </article>
 
-          <article className="dashboard-card request-summary-card">
-            <h2>{average.toFixed(1)}</h2>
-            <p>Promedio</p>
-            <span>Calificación media</span>
-          </article>
+            <article className="dashboard-card request-summary-card">
+              <h2>{average.toFixed(1)}</h2>
+              <p>Promedio</p>
+              <span>Calificación media</span>
+            </article>
 
-          <article className="dashboard-card request-summary-card">
-            <h2>{favorites.filter((provider) => provider.verificado).length}</h2>
-            <p>Verificados</p>
-            <span>Perfiles validados</span>
-          </article>
-        </div>
+            <article className="dashboard-card request-summary-card">
+              <h2>{favorites.filter((provider) => provider.verificado).length}</h2>
+              <p>Verificados</p>
+              <span>Perfiles validados</span>
+            </article>
+          </div>
+        )}
 
         <div className="section-title">
           <h2>Prestadores favoritos</h2>
@@ -90,7 +103,19 @@ function ClientFavoritesPage() {
         </div>
 
         <div className="client-search-results">
-          {favorites.map((provider) => (
+          {loading ? (
+            [1, 2, 3].map((item) => (
+              <article className="dashboard-card client-result-card list-skeleton-row" key={item}>
+                <div className="skeleton-avatar small"></div>
+                <div>
+                  <div className="skeleton-line wide"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line wide"></div>
+                </div>
+                <div className="skeleton-button compact"></div>
+              </article>
+            ))
+          ) : favorites.map((provider) => (
             <article className="dashboard-card client-result-card favorite-card" key={provider.providerId}>
               <div className="client-provider-avatar">
                 {provider.nombre.charAt(0)}

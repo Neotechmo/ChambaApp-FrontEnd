@@ -62,6 +62,7 @@ function AppRoutes() {
   const [loginForm, setLoginForm] = useState(initialLogin);
   const [registerForm, setRegisterForm] = useState(initialRegister);
   const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -80,12 +81,15 @@ function AppRoutes() {
   }
 
   async function loadServices() {
+    setServicesLoading(true);
     try {
       const data = await servicesApi.getAll({ available: true });
       setStable(setServices, Array.isArray(data) ? data : data?.data || []);
     } catch (error) {
       console.warn(error.message);
       setServices([]);
+    } finally {
+      setServicesLoading(false);
     }
   }
 
@@ -228,6 +232,7 @@ function AppRoutes() {
             <ClientHomePage
               user={user}
               services={services}
+              servicesLoading={servicesLoading}
               loadServices={loadServices}
               logout={logout}
               darkMode={darkMode}

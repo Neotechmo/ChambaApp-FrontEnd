@@ -21,6 +21,7 @@ import RequestServiceModal from "./client/RequestServiceModal.jsx";
 function ClientHomePage({
   user,
   services,
+  servicesLoading,
   loadServices,
   logout,
   darkMode,
@@ -30,6 +31,7 @@ function ClientHomePage({
   const [categories, setCategories] = useState([]);
   const [dashboard, setDashboard] = useState(null);
   const [profile, setProfile] = useState(null);
+  const [loadingOverview, setLoadingOverview] = useState(true);
   const [message, setMessage] = useState("");
   const [serviceToRequest, setServiceToRequest] = useState(null);
 
@@ -40,7 +42,8 @@ function ClientHomePage({
         setStable(setDashboard, dashboardResponse);
         setStable(setProfile, profileResponse);
       })
-      .catch((error) => setMessage(error.message));
+      .catch((error) => setMessage(error.message))
+      .finally(() => setLoadingOverview(false));
   }, []);
 
   const categoryIcons = [<FiTool />, <FiZap />, <FiDroplet />, <FiEdit3 />, <FiTruck />, <FiSettings />];
@@ -60,10 +63,14 @@ function ClientHomePage({
             </div>
 
             <div className="provider-actions">
-              <div className="available-pill" aria-label="Ubicación registrada">
-                <FiMapPin />
-                {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado].filter(Boolean).join(", ") || "Ubicación sin registrar"}
-              </div>
+              {loadingOverview ? (
+                <div className="available-pill skeleton-pill" aria-label="Cargando ubicación"></div>
+              ) : (
+                <div className="available-pill" aria-label="Ubicación registrada">
+                  <FiMapPin />
+                  {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado].filter(Boolean).join(", ") || "Ubicación sin registrar"}
+                </div>
+              )}
 
               <div className="avatar-button" aria-hidden="true">
                 {(user?.nombre || "M").charAt(0)}
@@ -84,45 +91,57 @@ function ClientHomePage({
         <section className="provider-content">
           {message && <p className="status-message api-feedback">{message}</p>}
 
-          <div className="stats-grid">
-            <article className="dashboard-card stat-card-pro">
-              <div className="stat-icon cyan">
-                <FiBriefcase />
-              </div>
+          {loadingOverview ? (
+            <div className="stats-grid">
+              {[1, 2, 3, 4].map((item) => (
+                <article className="dashboard-card stat-card-pro dashboard-skeleton-card" key={item}>
+                  <div className="skeleton-icon"></div>
+                  <div className="skeleton-line wide"></div>
+                  <div className="skeleton-line"></div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <div className="stats-grid">
+              <article className="dashboard-card stat-card-pro">
+                <div className="stat-icon cyan">
+                  <FiBriefcase />
+                </div>
 
-              <h2>{dashboard?.activeRequests || 0}</h2>
-              <p>Solicitudes activas</p>
-              <span>Servicios en seguimiento</span>
-            </article>
+                <h2>{dashboard?.activeRequests || 0}</h2>
+                <p>Solicitudes activas</p>
+                <span>Servicios en seguimiento</span>
+              </article>
 
-            <article className="dashboard-card stat-card-pro">
-              <div className="stat-icon yellow">
-                <FiStar />
-              </div>
+              <article className="dashboard-card stat-card-pro">
+                <div className="stat-icon yellow">
+                  <FiStar />
+                </div>
 
-              <h2>{dashboard?.favorites || 0}</h2>
-              <p>Favoritos</p>
-              <span>Prestadores guardados</span>
-            </article>
+                <h2>{dashboard?.favorites || 0}</h2>
+                <p>Favoritos</p>
+                <span>Prestadores guardados</span>
+              </article>
 
-            <article className="dashboard-card stat-card-pro">
-              <div className="stat-icon green">
-                <FiClock />
-              </div>
+              <article className="dashboard-card stat-card-pro">
+                <div className="stat-icon green">
+                  <FiClock />
+                </div>
 
-              <h2>{dashboard?.completedServices || 0}</h2>
-              <p>Servicios completados</p>
-              <span>Historial activo</span>
-            </article>
+                <h2>{dashboard?.completedServices || 0}</h2>
+                <p>Servicios completados</p>
+                <span>Historial activo</span>
+              </article>
 
-            <article className="dashboard-card stat-card-pro">
-              <div className="stat-icon purple">$</div>
+              <article className="dashboard-card stat-card-pro">
+                <div className="stat-icon purple">$</div>
 
-              <h2>{money(dashboard?.monthSpent)}</h2>
-              <p>Gastado este mes</p>
-              <span>Control de gastos</span>
-            </article>
-          </div>
+                <h2>{money(dashboard?.monthSpent)}</h2>
+                <p>Gastado este mes</p>
+                <span>Control de gastos</span>
+              </article>
+            </div>
+          )}
 
           <div className="section-title">
             <h2>Categorías populares</h2>
@@ -130,7 +149,15 @@ function ClientHomePage({
           </div>
 
           <div className="client-category-grid dashboard-categories">
-            {categories.map((category, index) => (
+            {loadingOverview ? (
+              [1, 2, 3, 4].map((item) => (
+                <article className="client-category-card category-skeleton-card" key={item}>
+                  <div className="skeleton-icon"></div>
+                  <div className="skeleton-line wide"></div>
+                  <div className="skeleton-line"></div>
+                </article>
+              ))
+            ) : categories.map((category, index) => (
               <button
                 className="client-category-card"
                 key={category.id}
@@ -151,7 +178,18 @@ function ClientHomePage({
               </div>
 
               <div className="client-services-list">
-                {services.map((service) => {
+                {servicesLoading ? (
+                  [1, 2, 3].map((item) => (
+                    <article className="dashboard-card client-provider-row list-skeleton-row" key={item}>
+                      <div className="skeleton-avatar small"></div>
+                      <div>
+                        <div className="skeleton-line wide"></div>
+                        <div className="skeleton-line"></div>
+                      </div>
+                      <div className="skeleton-button compact"></div>
+                    </article>
+                  ))
+                ) : services.map((service) => {
                   const name = service.nombre || service.titulo || "Servicio";
 
                   const oficio =
@@ -208,17 +246,31 @@ function ClientHomePage({
               <article className="dashboard-card agenda-card">
                 <h2>Mis próximas chambas</h2>
 
-                {(dashboard?.upcoming || []).map((item) => (
-                  <div className="agenda-item" key={item.id}>
-                    <span>{new Date(item.scheduledAt).getDate()}</span>
-                    <div>
-                      <strong>{item.title}</strong>
-                      <p>{dateTime(item.scheduledAt)} - {item.provider.nombre}</p>
+                {loadingOverview ? (
+                  [1, 2].map((item) => (
+                    <div className="agenda-item skeleton-agenda-item" key={item}>
+                      <span></span>
+                      <div>
+                        <div className="skeleton-line wide"></div>
+                        <div className="skeleton-line"></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <>
+                    {(dashboard?.upcoming || []).map((item) => (
+                      <div className="agenda-item" key={item.id}>
+                        <span>{new Date(item.scheduledAt).getDate()}</span>
+                        <div>
+                          <strong>{item.title}</strong>
+                          <p>{dateTime(item.scheduledAt)} - {item.provider.nombre}</p>
+                        </div>
+                      </div>
+                    ))}
 
-                {dashboard?.upcoming?.length === 0 && <p>Sin servicios agendados.</p>}
+                    {dashboard?.upcoming?.length === 0 && <p>Sin servicios agendados.</p>}
+                  </>
+                )}
               </article>
 
               <article className="verified-card">

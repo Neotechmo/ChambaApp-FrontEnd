@@ -41,6 +41,29 @@
   border-radius: 32px;
 }
 
+.skeleton-avatar.small {
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  border-radius: 999px;
+}
+
+.skeleton-avatar.tiny {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  border-radius: 999px;
+}
+
+.skeleton-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #eef0f6 25%, #f7f8fb 37%, #eef0f6 63%);
+  background-size: 400% 100%;
+  animation: skeletonPulse 1.25s ease-in-out infinite;
+}
+
 .skeleton-line {
   width: 46%;
   height: 16px;
@@ -62,6 +85,66 @@
   height: 46px;
   margin-top: 26px;
   border-radius: 14px;
+}
+
+.skeleton-button.compact {
+  width: 118px;
+  margin-top: 0;
+}
+
+.skeleton-pill {
+  width: 220px;
+  height: 48px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.18) 25%, rgba(255, 255, 255, 0.32) 37%, rgba(255, 255, 255, 0.18) 63%);
+  background-size: 400% 100%;
+  animation: skeletonPulse 1.25s ease-in-out infinite;
+}
+
+.dashboard-skeleton-card,
+.category-skeleton-card {
+  min-height: 142px;
+}
+
+.list-skeleton-row {
+  pointer-events: none;
+}
+
+.list-skeleton-row .skeleton-line,
+.conversation-skeleton .skeleton-line {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.skeleton-agenda-item span {
+  background: linear-gradient(90deg, #eef0f6 25%, #f7f8fb 37%, #eef0f6 63%);
+  background-size: 400% 100%;
+  animation: skeletonPulse 1.25s ease-in-out infinite;
+}
+
+.message-skeleton {
+  width: 54%;
+  height: 48px;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #eef0f6 25%, #f7f8fb 37%, #eef0f6 63%);
+  background-size: 400% 100%;
+  animation: skeletonPulse 1.25s ease-in-out infinite;
+}
+
+.message-skeleton.sent {
+  align-self: flex-end;
+}
+
+.message-skeleton.short {
+  width: 38%;
+}
+
+.chat-loading-state {
+  min-height: 560px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
 }
 
 @keyframes skeletonPulse {
@@ -246,13 +329,23 @@
 }
 
 .provider-layout.dark .skeleton-avatar,
+.provider-layout.dark .skeleton-icon,
 .provider-layout.dark .skeleton-line,
 .provider-layout.dark .skeleton-row,
 .provider-layout.dark .skeleton-button,
+.provider-layout.dark .message-skeleton,
 .client-dashboard-layout.dark .skeleton-avatar,
+.client-dashboard-layout.dark .skeleton-icon,
 .client-dashboard-layout.dark .skeleton-line,
 .client-dashboard-layout.dark .skeleton-row,
-.client-dashboard-layout.dark .skeleton-button {
+.client-dashboard-layout.dark .skeleton-button,
+.client-dashboard-layout.dark .message-skeleton {
+  background: linear-gradient(90deg, #27272f 25%, #343442 37%, #27272f 63%);
+  background-size: 400% 100%;
+}
+
+.provider-layout.dark .skeleton-agenda-item span,
+.client-dashboard-layout.dark .skeleton-agenda-item span {
   background: linear-gradient(90deg, #27272f 25%, #343442 37%, #27272f 63%);
   background-size: 400% 100%;
 }

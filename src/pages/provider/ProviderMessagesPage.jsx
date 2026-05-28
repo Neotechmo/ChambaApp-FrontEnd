@@ -16,8 +16,11 @@ function ProviderMessagesPage() {
   const [messages, setMessages] = useState([])
   const [draft, setDraft] = useState('')
   const [message, setMessage] = useState('')
+  const [conversationsLoading, setConversationsLoading] = useState(true)
+  const [messagesLoading, setMessagesLoading] = useState(false)
   const knownMessages = useRef(new Set())
   const unreadByConversation = useRef(new Map())
+  const hasSelectedConversation = useRef(false)
   const selectedId = selected?.id
   const selectedName = selected?.otherUser.nombre
 
@@ -33,9 +36,15 @@ function ProviderMessagesPage() {
           data.map((conversation) => [conversation.id, conversation.unreadCount || 0]),
         )
         setStable(setConversations, data)
-        setSelected((current) => current || data[0] || null)
+        if (data[0] && !hasSelectedConversation.current) {
+          hasSelectedConversation.current = true
+          setMessagesLoading(true)
+          setSelected(data[0])
+        }
       } catch (error) {
         if (active) setMessage(error.message)
+      } finally {
+        if (active) setConversationsLoading(false)
       }
     }
 
@@ -87,6 +96,8 @@ function ProviderMessagesPage() {
         }
       } catch (error) {
         if (active) setMessage(error.message)
+      } finally {
+        if (active) setMessagesLoading(false)
       }
     }
 
@@ -100,6 +111,8 @@ function ProviderMessagesPage() {
   }, [selectedId, selectedName, user.id])
 
   function openConversation(conversation) {
+    hasSelectedConversation.current = true
+    setMessagesLoading(true)
     setSelected(conversation)
   }
 
@@ -136,23 +149,33 @@ function ProviderMessagesPage() {
               <input type="text" placeholder="Conversaciones de solicitudes" disabled />
             </div>
 
-            {conversations.map((chat) => (
-              <button
-                key={chat.id}
-                className={`conversation-item ${selected?.id === chat.id ? 'active' : ''}`}
-                onClick={() => openConversation(chat)}
-              >
-                <div className="request-avatar">
-                  {chat.otherUser.nombre.charAt(0)}
-                </div>
+            {conversationsLoading ? (
+              [1, 2, 3].map((item) => (
+                <article className="conversation-item conversation-skeleton" key={item}>
+                  <div className="skeleton-avatar tiny"></div>
+                  <div>
+                    <div className="skeleton-line wide"></div>
+                    <div className="skeleton-line"></div>
+                  </div>
+                </article>
+              ))
+            ) : conversations.map((chat) => (
+                <button
+                  key={chat.id}
+                  className={`conversation-item ${selected?.id === chat.id ? 'active' : ''}`}
+                  onClick={() => openConversation(chat)}
+                >
+                  <div className="request-avatar">
+                    {chat.otherUser.nombre.charAt(0)}
+                  </div>
 
-                <div>
-                  <strong>{chat.otherUser.nombre}</strong>
-                  <p>{chat.lastMessage || 'Inicia la conversación'}</p>
-                </div>
+                  <div>
+                    <strong>{chat.otherUser.nombre}</strong>
+                    <p>{chat.lastMessage || 'Inicia la conversación'}</p>
+                  </div>
 
-                <span>{chat.unreadCount > 0 ? chat.unreadCount : ''}</span>
-              </button>
+                  <span>{chat.unreadCount > 0 ? chat.unreadCount : ''}</span>
+                </button>
             ))}
           </aside>
 
@@ -182,13 +205,19 @@ function ProviderMessagesPage() {
                 </header>
 
                 <div className="chat-messages">
-                  {messages.map((chatMessage) => (
-                    <div
-                      className={`message ${chatMessage.senderId === user.id ? 'sent' : 'received'}`}
-                      key={chatMessage.id}
-                    >
-                      {chatMessage.text}
-                    </div>
+                  {messagesLoading ? (
+                    <>
+                      <div className="message-skeleton received"></div>
+                      <div className="message-skeleton sent"></div>
+                      <div className="message-skeleton received short"></div>
+                    </>
+                  ) : messages.map((chatMessage) => (
+                      <div
+                        className={`message ${chatMessage.senderId === user.id ? 'sent' : 'received'}`}
+                        key={chatMessage.id}
+                      >
+                        {chatMessage.text}
+                      </div>
                   ))}
                 </div>
 
@@ -202,6 +231,12 @@ function ProviderMessagesPage() {
                   <button aria-label="Enviar"><FiSend /></button>
                 </form>
               </>
+            ) : conversationsLoading ? (
+              <div className="chat-loading-state">
+                <div className="skeleton-avatar"></div>
+                <div className="skeleton-line wide"></div>
+                <div className="skeleton-line"></div>
+              </div>
             ) : (
               <div className="empty-state-card">
                 <FiSend />

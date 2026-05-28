@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi'
 import { categoriesApi, favoritesApi, servicesApi } from '../../services/api.js'
 import { money } from '../../utils/formatters.js'
+import { setStable } from '../../utils/state.js'
 import RequestServiceModal from './RequestServiceModal.jsx'
 
 function ClientSearchPage() {
@@ -26,7 +27,7 @@ function ClientSearchPage() {
 
   useEffect(() => {
     categoriesApi.getAll()
-      .then((response) => setCategories(response.data || []))
+      .then((response) => setStable(setCategories, response.data || []))
       .catch((error) => setMessage(error.message))
     loadProviders({ categoryId: routedCategoryId || undefined })
   }, [routedCategoryId])
@@ -37,7 +38,7 @@ function ClientSearchPage() {
 
     try {
       const response = await servicesApi.getAll({ available: true, ...filters })
-      setProviders(response.data || [])
+      setStable(setProviders, response.data || [])
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -108,7 +109,19 @@ function ClientSearchPage() {
         </div>
 
         <div className="client-search-results">
-          {providers.map((provider) => (
+          {loading ? (
+            [1, 2, 3].map((item) => (
+              <article className="dashboard-card client-result-card list-skeleton-row" key={item}>
+                <div className="skeleton-avatar small"></div>
+                <div>
+                  <div className="skeleton-line wide"></div>
+                  <div className="skeleton-line"></div>
+                  <div className="skeleton-line wide"></div>
+                </div>
+                <div className="skeleton-button compact"></div>
+              </article>
+            ))
+          ) : providers.map((provider) => (
             <article className="dashboard-card client-result-card" key={provider.id}>
               <div className="client-provider-avatar">
                 {provider.nombre.charAt(0)}
