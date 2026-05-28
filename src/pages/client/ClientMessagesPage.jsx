@@ -7,6 +7,7 @@ import {
   FiVideo,
 } from 'react-icons/fi'
 import { conversationsApi } from '../../services/api.js'
+import { setStable } from '../../utils/state.js'
 
 function ClientMessagesPage() {
   const { user } = useOutletContext()
@@ -16,6 +17,7 @@ function ClientMessagesPage() {
   const [draft, setDraft] = useState('')
   const [message, setMessage] = useState('')
   const knownMessages = useRef(new Set())
+  const unreadByConversation = useRef(new Map())
   const selectedId = selected?.id
   const selectedName = selected?.otherUser.nombre
 
@@ -27,7 +29,10 @@ function ClientMessagesPage() {
         const response = await conversationsApi.getAll()
         if (!active) return
         const data = response.data || []
-        setConversations(data)
+        unreadByConversation.current = new Map(
+          data.map((conversation) => [conversation.id, conversation.unreadCount || 0]),
+        )
+        setStable(setConversations, data)
         setSelected((current) => current || data[0] || null)
       } catch (error) {
         if (active) setMessage(error.message)
@@ -63,16 +68,19 @@ function ClientMessagesPage() {
           )
           : null
 
-        setMessages(data)
+        setStable(setMessages, data)
         knownMessages.current = new Set(data.map((chatMessage) => chatMessage.id))
         initialized = true
-        await conversationsApi.read(selectedId)
-        if (!active) return
-        setConversations((current) =>
-          current.map((item) =>
-            item.id === selectedId ? { ...item, unreadCount: 0 } : item,
-          ),
-        )
+        if ((unreadByConversation.current.get(selectedId) || 0) > 0) {
+          await conversationsApi.read(selectedId)
+          if (!active) return
+          unreadByConversation.current.set(selectedId, 0)
+          setConversations((current) =>
+            current.map((item) =>
+              item.id === selectedId ? { ...item, unreadCount: 0 } : item,
+            ),
+          )
+        }
 
         if (incoming) {
           setMessage(`Nuevo mensaje de ${selectedName}.`)
@@ -164,8 +172,12 @@ function ClientMessagesPage() {
                   </div>
 
                   <div className="chat-actions">
-                    <button aria-label="Llamar"><FiPhone /></button>
-                    <button aria-label="Videollamada"><FiVideo /></button>
+                    <button type="button" disabled title="Llamadas no disponibles" aria-label="Llamar">
+                      <FiPhone />
+                    </button>
+                    <button type="button" disabled title="Videollamadas no disponibles" aria-label="Videollamada">
+                      <FiVideo />
+                    </button>
                   </div>
                 </header>
 

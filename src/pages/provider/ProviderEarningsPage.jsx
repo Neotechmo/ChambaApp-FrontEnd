@@ -7,6 +7,7 @@ import {
 } from 'react-icons/fi'
 import { providerApi } from '../../services/api.js'
 import { money, shortDate } from '../../utils/formatters.js'
+import { setStable } from '../../utils/state.js'
 
 function ProviderEarningsPage() {
   const [summary, setSummary] = useState(null)
@@ -23,8 +24,8 @@ function ProviderEarningsPage() {
         providerApi.earnings(),
         providerApi.transactions(),
       ])
-      setSummary(earningsResponse)
-      setTransactions(transactionsResponse.data || [])
+      setStable(setSummary, earningsResponse)
+      setStable(setTransactions, transactionsResponse.data || [])
     } catch (error) {
       setMessage(error.message)
     }

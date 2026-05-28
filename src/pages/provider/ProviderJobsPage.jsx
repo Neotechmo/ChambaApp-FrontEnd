@@ -17,6 +17,8 @@ import {
   money,
   statusLabel,
 } from '../../utils/formatters.js'
+import { onlyDigits } from '../../utils/forms.js'
+import { setStable } from '../../utils/state.js'
 
 function ProviderJobsPage() {
   const navigate = useNavigate()
@@ -33,7 +35,7 @@ function ProviderJobsPage() {
 
     try {
       const response = await providerApi.jobs()
-      setJobs(response.data || [])
+      setStable(setJobs, response.data || [])
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -81,10 +83,10 @@ function ProviderJobsPage() {
             Actualizar
           </button>
 
-          <button className="solid-action-button">
+          <span className="solid-action-button readonly-action">
             <FiCheckCircle />
             {jobs.filter((job) => job.status === 'completed').length} finalizados
-          </button>
+          </span>
         </div>
       </header>
 
@@ -174,8 +176,8 @@ function ProviderJobsPage() {
                   </div>
 
                   <div className="provider-job-actions">
-                    {job.client.telefono && (
-                      <a className="outline-job-button" href={`tel:${job.client.telefono}`}>
+                    {onlyDigits(job.client.telefono).length > 0 && (
+                      <a className="outline-job-button" href={`tel:${onlyDigits(job.client.telefono)}`}>
                         <FiPhone />
                         Llamar
                       </a>

@@ -1,6 +1,40 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const responseCache = new Map()
+const pendingRequests = new Map()
+
+function requestMethod(options) {
+  return (options.method || 'GET').toUpperCase()
+}
+
+function cacheKey(path) {
+  const token = localStorage.getItem('chamba_token') || 'anonymous'
+  return `${token}:${path}`
+}
+
+function clearReadCache() {
+  responseCache.clear()
+}
 
 export async function apiRequest(path, options = {}) {
+  const method = requestMethod(options)
+  const key = method === 'GET' ? cacheKey(path) : null
+  if (key && pendingRequests.has(key)) {
+    return pendingRequests.get(key)
+  }
+
+  const request = executeRequest(path, options, method, key)
+  if (key) {
+    pendingRequests.set(key, request)
+  }
+
+  try {
+    return await request
+  } finally {
+    if (key) pendingRequests.delete(key)
+  }
+}
+
+async function executeRequest(path, options, method, key) {
   const token = localStorage.getItem('chamba_token')
 
   const response = await fetch(`${API_URL}${path}`, {
@@ -19,6 +53,19 @@ export async function apiRequest(path, options = {}) {
       ? data.message.join(', ')
       : data?.message || 'Ocurrió un error en la petición'
     throw new Error(message)
+  }
+
+  if (key) {
+    const signature = JSON.stringify(data)
+    const cached = responseCache.get(key)
+
+    if (cached?.signature === signature) {
+      return cached.data
+    }
+
+    responseCache.set(key, { signature, data })
+  } else if (method !== 'GET') {
+    clearReadCache()
   }
 
   return data

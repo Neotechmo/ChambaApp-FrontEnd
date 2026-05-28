@@ -5,6 +5,7 @@ import {
 } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { conversationsApi, dashboardApi, notificationsApi } from '../services/api.js'
+import { setStable } from '../utils/state.js'
 
 import {
   FiGrid,
@@ -90,7 +91,7 @@ function ClientLayout({
         previousNotifications.current = new Set(
           systemNotifications.map((item) => item._id),
         )
-        setCounts({
+        setStable(setCounts, {
           requests: dashboard.activeRequests || 0,
           unread: chats.reduce(
             (total, conversation) => total + conversation.unreadCount,

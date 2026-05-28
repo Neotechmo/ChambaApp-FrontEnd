@@ -11,6 +11,8 @@ import {
   FiX,
 } from 'react-icons/fi'
 import { addressesApi, authApi } from '../../services/api.js'
+import { onlyDigits, phoneInputProps, postalCodeInputProps } from '../../utils/forms.js'
+import { setStable } from '../../utils/state.js'
 
 function ClientProfilePage() {
   const [profile, setProfile] = useState(null)
@@ -30,8 +32,8 @@ function ClientProfilePage() {
   useEffect(() => {
     Promise.all([authApi.profile(), addressesApi.getAll()])
       .then(([profileResponse, addressResponse]) => {
-        setProfile(profileResponse)
-        setAddresses(addressResponse.data || [])
+        setStable(setProfile, profileResponse)
+        setStable(setAddresses, addressResponse.data || [])
       })
       .catch((error) => setMessage(error.message))
   }, [])
@@ -39,7 +41,7 @@ function ClientProfilePage() {
   function openEditor() {
     if (!profile) return
     setForm({
-      telefono: profile.telefono || '',
+      telefono: onlyDigits(profile.telefono || ''),
       ciudad: profile.ubicacion?.ciudad || '',
       estado: profile.ubicacion?.estado || '',
     })
@@ -50,14 +52,14 @@ function ClientProfilePage() {
     event.preventDefault()
     try {
       const updated = await authApi.updateProfile({
-        telefono: form.telefono,
+        telefono: onlyDigits(form.telefono),
         ubicacion: {
           ...profile.ubicacion,
           ciudad: form.ciudad,
           estado: form.estado,
         },
       })
-      setProfile(updated)
+      setStable(setProfile, updated)
       setEditOpen(false)
       setMessage('Perfil actualizado correctamente.')
     } catch (error) {
@@ -225,7 +227,11 @@ function ClientProfilePage() {
             <form className="request-service-form" onSubmit={editProfile}>
               <label className="request-form-wide">
                 Teléfono
-                <input value={form.telefono} onChange={(event) => setForm({ ...form, telefono: event.target.value })} />
+                <input
+                  {...phoneInputProps()}
+                  value={form.telefono}
+                  onChange={(event) => setForm({ ...form, telefono: onlyDigits(event.target.value) })}
+                />
               </label>
               <label>
                 Ciudad
@@ -273,7 +279,11 @@ function ClientProfilePage() {
               </label>
               <label className="request-form-wide">
                 Código postal
-                <input value={address.codigoPostal} onChange={(event) => setAddress({ ...address, codigoPostal: event.target.value })} />
+                <input
+                  {...postalCodeInputProps()}
+                  value={address.codigoPostal}
+                  onChange={(event) => setAddress({ ...address, codigoPostal: onlyDigits(event.target.value, 5) })}
+                />
               </label>
               <div className="request-form-actions request-form-wide">
                 <button type="button" className="outline-job-button" onClick={() => setAddressOpen(false)}>Cancelar</button>

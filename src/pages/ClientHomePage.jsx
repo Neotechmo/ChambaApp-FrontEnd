@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi, categoriesApi, dashboardApi } from "../services/api.js";
 import { dateTime, money } from "../utils/formatters.js";
+import { setStable } from "../utils/state.js";
 import RequestServiceModal from "./client/RequestServiceModal.jsx";
 
 function ClientHomePage({
@@ -35,9 +36,9 @@ function ClientHomePage({
   useEffect(() => {
     Promise.all([categoriesApi.getAll(), dashboardApi.client(), authApi.profile()])
       .then(([categoryResponse, dashboardResponse, profileResponse]) => {
-        setCategories(categoryResponse.data || []);
-        setDashboard(dashboardResponse);
-        setProfile(profileResponse);
+        setStable(setCategories, categoryResponse.data || []);
+        setStable(setDashboard, dashboardResponse);
+        setStable(setProfile, profileResponse);
       })
       .catch((error) => setMessage(error.message));
   }, []);
@@ -59,14 +60,14 @@ function ClientHomePage({
             </div>
 
             <div className="provider-actions">
-              <button className="available-pill">
+              <div className="available-pill" aria-label="Ubicación registrada">
                 <FiMapPin />
                 {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado].filter(Boolean).join(", ") || "Ubicación sin registrar"}
-              </button>
+              </div>
 
-              <button className="avatar-button">
+              <div className="avatar-button" aria-hidden="true">
                 {(user?.nombre || "M").charAt(0)}
-              </button>
+              </div>
 
               <button className="logout-button" onClick={logout}>
                 Salir
@@ -252,7 +253,7 @@ function ClientHomePage({
           onCreated={async () => {
             setMessage(`Solicitud agendada y enviada a ${serviceToRequest.nombre}.`);
             setServiceToRequest(null);
-            setDashboard(await dashboardApi.client());
+            setStable(setDashboard, await dashboardApi.client());
           }}
         />
       )}

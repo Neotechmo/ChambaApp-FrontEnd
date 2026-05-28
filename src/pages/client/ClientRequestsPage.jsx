@@ -12,6 +12,7 @@ import {
   FiCalendar,
 } from 'react-icons/fi'
 import { ratingsApi, requestsApi } from '../../services/api.js'
+import { setStable } from '../../utils/state.js'
 import {
   addressText,
   dateTime,
@@ -45,7 +46,7 @@ function ClientRequestsPage() {
         requestsApi.mine(),
         ratingsApi.getAll(),
       ])
-      setRequests(response.data || [])
+      setStable(setRequests, response.data || [])
       const ratings = Array.isArray(ratingsResponse)
         ? ratingsResponse
         : ratingsResponse.data || []
@@ -238,10 +239,10 @@ function ClientRequestsPage() {
                       Cancelar
                     </button>
                   ) : (
-                    <button className="solid-job-button">
+                    <span className="solid-job-button readonly-action">
                       <FiCheckCircle />
                       {statusLabel(request.status)}
-                    </button>
+                    </span>
                   )}
                 </div>
               </article>

@@ -10,6 +10,8 @@ import {
 import "./App.css";
 
 import { authApi, servicesApi } from "./services/api.js";
+import { onlyDigits } from "./utils/forms.js";
+import { setStable } from "./utils/state.js";
 
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
@@ -80,7 +82,7 @@ function AppRoutes() {
   async function loadServices() {
     try {
       const data = await servicesApi.getAll({ available: true });
-      setServices(Array.isArray(data) ? data : data?.data || []);
+      setStable(setServices, Array.isArray(data) ? data : data?.data || []);
     } catch (error) {
       console.warn(error.message);
       setServices([]);
@@ -94,7 +96,10 @@ function AppRoutes() {
 
   function updateRegister(event) {
     const { name, value } = event.target;
-    setRegisterForm((current) => ({ ...current, [name]: value }));
+    setRegisterForm((current) => ({
+      ...current,
+      [name]: name === "telefono" ? onlyDigits(value) : value,
+    }));
   }
 
   async function handleLogin(event) {

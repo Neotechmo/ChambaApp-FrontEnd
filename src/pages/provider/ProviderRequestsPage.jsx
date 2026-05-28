@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi'
 import { providerApi } from '../../services/api.js'
 import { addressText, dateTime, money, statusLabel } from '../../utils/formatters.js'
+import { setStable } from '../../utils/state.js'
 import ProviderRequestModal from './ProviderRequestModal.jsx'
 
 function ProviderRequestsPage() {
@@ -27,7 +28,7 @@ function ProviderRequestsPage() {
 
     try {
       const response = await providerApi.requests()
-      setRequests(response.data || [])
+      setStable(setRequests, response.data || [])
     } catch (error) {
       setMessage(error.message)
     } finally {
@@ -59,7 +60,7 @@ function ProviderRequestsPage() {
         </div>
 
         <div className="provider-page-actions">
-          <button className="outline-action-button">
+          <button className="outline-action-button" disabled title="La vista ya muestra solicitudes pendientes">
             <FiFilter />
             Pendientes
           </button>

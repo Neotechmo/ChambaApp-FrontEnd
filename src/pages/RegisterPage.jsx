@@ -1,3 +1,5 @@
+import { phoneInputProps } from '../utils/forms.js'
+
 function RegisterPage({
   darkMode,
   toggleTheme,
@@ -72,6 +74,7 @@ function RegisterPage({
           <label>
             Teléfono
             <input
+              {...phoneInputProps()}
               name="telefono"
               value={registerForm.telefono}
               onChange={updateRegister}

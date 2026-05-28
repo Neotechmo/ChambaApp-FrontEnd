@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi, providerApi } from "../services/api.js";
 import { addressText, dateTime, jobProgress, money, statusLabel } from "../utils/formatters.js";
+import { setStable } from "../utils/state.js";
 
 function ProviderHomePage({ user, logout }) {
   const navigate = useNavigate();
@@ -19,10 +20,10 @@ function ProviderHomePage({ user, logout }) {
       authApi.profile(),
     ])
       .then(([summary, requestResponse, jobsResponse, profileResponse]) => {
-        setDashboard(summary);
-        setRequests((requestResponse.data || []).filter((request) => request.status === "pending"));
-        setActiveJobs((jobsResponse.data || []).filter((job) => job.status !== "completed"));
-        setProfile(profileResponse);
+        setStable(setDashboard, summary);
+        setStable(setRequests, (requestResponse.data || []).filter((request) => request.status === "pending"));
+        setStable(setActiveJobs, (jobsResponse.data || []).filter((job) => job.status !== "completed"));
+        setStable(setProfile, profileResponse);
       })
       .catch((error) => setMessage(error.message));
   }, []);
@@ -30,7 +31,7 @@ function ProviderHomePage({ user, logout }) {
   async function toggleAvailability() {
     try {
       const updated = await providerApi.updateAvailability(!profile?.disponible);
-      setProfile(updated);
+      setStable(setProfile, updated);
     } catch (error) {
       setMessage(error.message);
     }
@@ -51,9 +52,9 @@ function ProviderHomePage({ user, logout }) {
               {profile?.disponible ? "Disponible" : "No disponible"}
             </button>
 
-            <button className="avatar-button">
+            <div className="avatar-button" aria-hidden="true">
               {user?.nombre?.charAt(0) || "P"}
-            </button>
+            </div>
 
             <button className="logout-button" onClick={logout}>
               Salir
