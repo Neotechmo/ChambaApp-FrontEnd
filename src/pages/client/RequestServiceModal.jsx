@@ -21,6 +21,7 @@ function RequestServiceModal({ service, onClose, onCreated }) {
       .toISOString()
       .slice(0, 16)
   })
+  const shouldShowManualAddress = !selectedAddress
 
   useEffect(() => {
     addressesApi.getAll()
@@ -95,34 +96,37 @@ function RequestServiceModal({ service, onClose, onCreated }) {
             />
           </label>
 
-          <label>
-            <FiMapPin />
-            Dirección guardada
-            <select
-              value={selectedAddress}
-              onChange={(event) => setSelectedAddress(event.target.value)}
-            >
-              <option value="">Escribir otra dirección</option>
-              {addresses.map((address) => (
-                <option key={address.id} value={address.id}>
-                  {address.etiqueta || 'Dirección'} - {address.calle}, {address.ciudad}
-                </option>
-              ))}
-            </select>
-          </label>
+          {addresses.length > 0 && (
+            <label>
+              <FiMapPin />
+              Dirección guardada
+              <select
+                value={selectedAddress}
+                onChange={(event) => setSelectedAddress(event.target.value)}
+              >
+                <option value="">Escribir otra dirección</option>
+                {addresses.map((address) => (
+                  <option key={address.id} value={address.id}>
+                    {address.etiqueta || 'Dirección'} - {address.calle}, {address.ciudad}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
-          <label>
-            <FiMapPin />
-            Dirección del servicio
-            <input
-              name="direccion"
-              value={form.direccion}
-              onChange={updateForm}
-              placeholder="Calle, número, colonia y ciudad"
-              required={!selectedAddress}
-              disabled={Boolean(selectedAddress)}
-            />
-          </label>
+          {shouldShowManualAddress && (
+            <label>
+              <FiMapPin />
+              Dirección del servicio
+              <input
+                name="direccion"
+                value={form.direccion}
+                onChange={updateForm}
+                placeholder="Calle, número, colonia y ciudad"
+                required
+              />
+            </label>
+          )}
 
           <label className="request-form-wide">
             Descripción
