@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { FiCalendar, FiMapPin, FiX } from 'react-icons/fi'
 import { addressesApi, requestsApi } from '../../services/api.js'
 import { money } from '../../utils/formatters.js'
+import { trackServiceRequest } from '../../utils/analytics.js'
 
 function RequestServiceModal({ service, onClose, onCreated }) {
   const [form, setForm] = useState({
@@ -53,6 +54,13 @@ function RequestServiceModal({ service, onClose, onCreated }) {
         duracionEstimadaMin: Number(form.duracionEstimadaMin),
         prioridad: form.prioridad,
         precioEstimado: service.precio,
+      })
+      trackServiceRequest({
+        requestId: request.id,
+        serviceId: service.id,
+        priority: form.prioridad,
+        hasSavedAddress: Boolean(selectedAddress),
+        estimatedDurationMin: Number(form.duracionEstimadaMin),
       })
       onCreated(request)
     } catch (error) {

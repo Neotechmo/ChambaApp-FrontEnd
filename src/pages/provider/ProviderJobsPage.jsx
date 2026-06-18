@@ -82,11 +82,6 @@ function ProviderJobsPage() {
             <FiClock />
             Actualizar
           </button>
-
-          <span className="solid-action-button readonly-action">
-            <FiCheckCircle />
-            {jobs.filter((job) => job.status === 'completed').length} finalizados
-          </span>
         </div>
       </header>
 

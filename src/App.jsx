@@ -10,6 +10,13 @@ import {
 import "./App.css";
 
 import { authApi, servicesApi } from "./services/api.js";
+import { clearDatadogUser, setDatadogUser } from "./config/datadog.js";
+import { useNavigationTracking } from "./hooks/useNavigationTracking.js";
+import {
+  trackLogin,
+  trackLogout,
+  trackRegister,
+} from "./utils/analytics.js";
 import { onlyDigits } from "./utils/forms.js";
 import { setStable } from "./utils/state.js";
 
@@ -49,6 +56,7 @@ const initialRegister = {
 
 function AppRoutes() {
   const navigate = useNavigate();
+  useNavigationTracking();
 
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("chamba_theme") === "dark";
@@ -72,7 +80,10 @@ function AppRoutes() {
 
   useEffect(() => {
     if (user) {
+      setDatadogUser(user);
       loadServices();
+    } else {
+      clearDatadogUser();
     }
   }, [user]);
 
@@ -119,6 +130,8 @@ function AppRoutes() {
       localStorage.setItem("chamba_user", JSON.stringify(data.user));
 
       setUser(data.user);
+      setDatadogUser(data.user);
+      trackLogin(data.user);
 
       if (data.user?.rol === "prestador") {
         navigate("/provider");
@@ -140,6 +153,7 @@ function AppRoutes() {
 
     try {
       await authApi.register(registerForm);
+      trackRegister(registerForm.rol);
 
       setMessage("Cuenta creada correctamente");
       setRegisterForm(initialRegister);
@@ -153,8 +167,10 @@ function AppRoutes() {
   }
 
   function logout() {
+    trackLogout(user);
     localStorage.removeItem("chamba_token");
     localStorage.removeItem("chamba_user");
+    clearDatadogUser();
 
     setUser(null);
     setLoginForm(initialLogin);

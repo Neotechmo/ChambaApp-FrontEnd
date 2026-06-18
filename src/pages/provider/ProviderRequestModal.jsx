@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FiCalendar, FiX } from 'react-icons/fi'
 import { providerApi } from '../../services/api.js'
 import { dateTime } from '../../utils/formatters.js'
+import { trackProviderRejectedRequest } from '../../utils/analytics.js'
 
 function inputDate(value) {
   const date = value ? new Date(value) : new Date()
@@ -28,6 +29,10 @@ function ProviderRequestModal({ request, mode, onClose, onUpdated }) {
         onUpdated('Nueva fecha enviada al cliente para confirmación.')
       } else {
         await providerApi.rejectRequest(request.id, reason.trim() || undefined)
+        trackProviderRejectedRequest({
+          requestId: request.id,
+          hasReason: Boolean(reason.trim()),
+        })
         onUpdated('Solicitud rechazada.')
       }
     } catch (error) {

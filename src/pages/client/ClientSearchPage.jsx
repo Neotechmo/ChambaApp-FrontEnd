@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi'
 import { categoriesApi, favoritesApi, servicesApi } from '../../services/api.js'
 import { money } from '../../utils/formatters.js'
+import { trackFavoriteAdded } from '../../utils/analytics.js'
 import { setStable } from '../../utils/state.js'
 import RequestServiceModal from './RequestServiceModal.jsx'
 
@@ -54,6 +55,10 @@ function ClientSearchPage() {
   async function saveFavorite(provider) {
     try {
       await favoritesApi.add(provider.providerId)
+      trackFavoriteAdded({
+        providerId: provider.providerId,
+        serviceId: provider.id,
+      })
       setMessage(`${provider.nombre} fue agregado a favoritos.`)
     } catch (error) {
       setMessage(error.message)

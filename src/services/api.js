@@ -1,3 +1,12 @@
+import {
+  trackAccessDenied,
+  trackApiError,
+  trackApiRequest,
+  trackApiResponse,
+  trackNetworkFailure,
+  trackTokenExpired,
+} from '../utils/analytics.js'
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const responseCache = new Map()
 const pendingRequests = new Map()
@@ -36,24 +45,66 @@ export async function apiRequest(path, options = {}) {
 
 async function executeRequest(path, options, method, key) {
   const token = localStorage.getItem('chamba_token')
+  const startedAt = performance.now()
+  const timestamp = new Date().toISOString()
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  })
+  trackApiRequest({ method, endpoint: path, timestamp })
 
+  let response
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    })
+  } catch (error) {
+    trackNetworkFailure({
+      method,
+      endpoint: path,
+      message: error.message,
+      error,
+    })
+    throw error
+  }
+
+  const durationMs = Math.round(performance.now() - startedAt)
   const data = await response.json().catch(() => null)
 
   if (!response.ok) {
     const message = Array.isArray(data?.message)
       ? data.message.join(', ')
       : data?.message || 'Ocurrió un error en la petición'
-    throw new Error(message)
+    const error = new Error(message)
+
+    trackApiError({
+      method,
+      endpoint: path,
+      status: response.status,
+      message,
+      durationMs,
+      error,
+    })
+
+    if (response.status === 401 && path !== '/auth/login') {
+      trackTokenExpired(path)
+    }
+
+    if (response.status === 403) {
+      trackAccessDenied(path)
+    }
+
+    throw error
   }
+
+  trackApiResponse({
+    method,
+    endpoint: path,
+    status: response.status,
+    durationMs,
+  })
 
   if (key) {
     const signature = JSON.stringify(data)

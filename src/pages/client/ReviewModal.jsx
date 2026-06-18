@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FiStar, FiX } from 'react-icons/fi'
 import { requestsApi } from '../../services/api.js'
+import { trackReviewSubmitted } from '../../utils/analytics.js'
 
 function ReviewModal({ request, onClose, onCreated }) {
   const [rating, setRating] = useState('5')
@@ -17,6 +18,11 @@ function ReviewModal({ request, onClose, onCreated }) {
       await requestsApi.review(request.id, {
         rating: Number(rating),
         comment: comment.trim(),
+      })
+      trackReviewSubmitted({
+        requestId: request.id,
+        rating: Number(rating),
+        providerId: request.provider?.id,
       })
       onCreated()
     } catch (error) {

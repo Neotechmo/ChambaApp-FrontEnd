@@ -21,6 +21,7 @@ function ProviderMessagesPage() {
   const knownMessages = useRef(new Set())
   const unreadByConversation = useRef(new Map())
   const hasSelectedConversation = useRef(false)
+  const selectedRef = useRef(null)
   const selectedId = selected?.id
   const selectedName = selected?.otherUser.nombre
 
@@ -36,13 +37,29 @@ function ProviderMessagesPage() {
           data.map((conversation) => [conversation.id, conversation.unreadCount || 0]),
         )
         setStable(setConversations, data)
-        if (data[0] && !hasSelectedConversation.current) {
-          hasSelectedConversation.current = true
-          setMessagesLoading(true)
-          setSelected(data[0])
+        if (
+          !selectedRef.current ||
+          !data.some((conversation) => conversation.id === selectedRef.current.id)
+        ) {
+          const next = data[0] || null
+          selectedRef.current = next
+          hasSelectedConversation.current = Boolean(next)
+          setMessages([])
+          if (next) setMessagesLoading(true)
+          setSelected(next)
+        }
+        if (data.length === 0) {
+          setMessages([])
+          hasSelectedConversation.current = false
         }
       } catch (error) {
         if (active) setMessage(error.message)
+        if (active && error.message.includes('No puedes ver')) {
+          selectedRef.current = null
+          setSelected(null)
+          setMessages([])
+          hasSelectedConversation.current = false
+        }
       } finally {
         if (active) setConversationsLoading(false)
       }
@@ -111,6 +128,7 @@ function ProviderMessagesPage() {
   }, [selectedId, selectedName, user.id])
 
   function openConversation(conversation) {
+    selectedRef.current = conversation
     hasSelectedConversation.current = true
     setMessagesLoading(true)
     setSelected(conversation)

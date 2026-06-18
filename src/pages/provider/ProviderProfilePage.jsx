@@ -11,6 +11,7 @@ import {
   FiX,
 } from 'react-icons/fi'
 import { authApi, providerApi } from '../../services/api.js'
+import { trackProviderProfileUpdated } from '../../utils/analytics.js'
 import { setStable } from '../../utils/state.js'
 
 function ProviderProfilePage() {
@@ -63,6 +64,7 @@ function ProviderProfilePage() {
         etiquetas: form.etiquetas.split(',').map((tag) => tag.trim()).filter(Boolean),
       })
       setProfile(updated)
+      trackProviderProfileUpdated({ userId: updated.id })
       setEditOpen(false)
       setMessage('Perfil profesional actualizado.')
     } catch (error) {

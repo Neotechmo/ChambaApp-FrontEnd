@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi'
 import { providerApi } from '../../services/api.js'
 import { addressText, dateTime, money, statusLabel } from '../../utils/formatters.js'
+import { trackProviderAcceptedRequest } from '../../utils/analytics.js'
 import { setStable } from '../../utils/state.js'
 import ProviderRequestModal from './ProviderRequestModal.jsx'
 
@@ -39,6 +40,7 @@ function ProviderRequestsPage() {
   async function acceptRequest(id) {
     try {
       await providerApi.acceptRequest(id)
+      trackProviderAcceptedRequest({ requestId: id })
       setMessage('Solicitud aceptada. Ya se encuentra en tus trabajos y calendario.')
       await loadRequests()
     } catch (error) {
