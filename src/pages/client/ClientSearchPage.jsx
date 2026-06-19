@@ -86,14 +86,22 @@ function ClientSearchPage() {
             />
           </div>
 
-          <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+          <select
+            aria-label="Filtrar por categoría"
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+          >
             <option value="">Todas las categorías</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>{category.nombre}</option>
             ))}
           </select>
 
-          <select value={sort} onChange={(event) => setSort(event.target.value)}>
+          <select
+            aria-label="Ordenar resultados"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+          >
             <option value="availability">Disponibilidad</option>
             <option value="rating">Mejor calificación</option>
             <option value="price_asc">Menor precio</option>

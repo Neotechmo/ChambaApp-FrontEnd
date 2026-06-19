@@ -64,9 +64,9 @@ function ClientHomePage({
 
             <div className="provider-actions">
               {loadingOverview ? (
-                <div className="available-pill skeleton-pill" aria-label="Cargando ubicación"></div>
+                <div className="available-pill skeleton-pill" role="status" aria-label="Cargando ubicación"></div>
               ) : (
-                <div className="available-pill" aria-label="Ubicación registrada">
+                <div className="available-pill" role="status" aria-label="Ubicación registrada">
                   <FiMapPin />
                   {[profile?.ubicacion?.ciudad, profile?.ubicacion?.estado].filter(Boolean).join(", ") || "Ubicación sin registrar"}
                 </div>

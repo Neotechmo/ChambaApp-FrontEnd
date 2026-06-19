@@ -27,3 +27,7 @@ dist-ssr
 # Local backend coordination notes
 /NECESIDADES_BACK.md
 PROMT_FALTANTES.md
+
+# Cypress generated artifacts
+cypress/screenshots/
+cypress/videos/

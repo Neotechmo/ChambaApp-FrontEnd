@@ -1,0 +1,22 @@
+{
+  "client": {
+    "nombre": "Cliente",
+    "apellido": "Prueba",
+    "correo": "cliente@test.com",
+    "password": "Test1234!",
+    "telefono": "5550001111",
+    "rol": "cliente"
+  },
+  "provider": {
+    "nombre": "Prestador",
+    "apellido": "Prueba",
+    "correo": "prestador@test.com",
+    "password": "Test1234!",
+    "telefono": "5550002222",
+    "rol": "prestador"
+  },
+  "invalidUser": {
+    "correo": "noexiste@mail.com",
+    "password": "wrong123"
+  }
+}

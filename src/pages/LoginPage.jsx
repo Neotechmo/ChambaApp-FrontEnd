@@ -27,6 +27,7 @@ function LoginPage({
           <label>
             Correo electrónico
             <input
+              id="login-correo"
               type="email"
               name="correo"
               placeholder="cliente@chambaapp.com"
@@ -39,6 +40,7 @@ function LoginPage({
           <label>
             Contraseña
             <input
+              id="login-password"
               type="password"
               name="password"
               placeholder="Password123"
@@ -48,7 +50,7 @@ function LoginPage({
             />
           </label>
 
-          <button className="primary-button" disabled={loading}>
+          <button type="submit" className="primary-button" disabled={loading}>
             {loading ? 'Entrando...' : 'Iniciar sesión'}
           </button>
         </form>

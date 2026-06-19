@@ -11,7 +11,7 @@
 }
 
 .client-page-hero p {
-  color: rgba(255, 255, 255, 0.78);
+  color: #ffffff;
   font-weight: 700;
 }
 
@@ -25,7 +25,7 @@
 .client-page-hero span {
   display: block;
   margin-top: 12px;
-  color: rgba(255, 255, 255, 0.82);
+  color: #ffffff;
 }
 
 .client-search-toolbar {

@@ -33,6 +33,7 @@ function RegisterPage({
           <label>
             Nombre
             <input
+              id="register-nombre"
               name="nombre"
               value={registerForm.nombre}
               onChange={updateRegister}
@@ -43,6 +44,7 @@ function RegisterPage({
           <label>
             Apellido
             <input
+              id="register-apellido"
               name="apellido"
               value={registerForm.apellido}
               onChange={updateRegister}
@@ -52,6 +54,7 @@ function RegisterPage({
           <label>
             Correo electrónico
             <input
+              id="register-correo"
               type="email"
               name="correo"
               value={registerForm.correo}
@@ -63,6 +66,7 @@ function RegisterPage({
           <label>
             Contraseña
             <input
+              id="register-password"
               type="password"
               name="password"
               value={registerForm.password}
@@ -75,6 +79,7 @@ function RegisterPage({
             Teléfono
             <input
               {...phoneInputProps()}
+              id="register-telefono"
               name="telefono"
               value={registerForm.telefono}
               onChange={updateRegister}
@@ -84,6 +89,7 @@ function RegisterPage({
           <label>
             Tipo de cuenta
             <select
+              id="register-rol"
               name="rol"
               value={registerForm.rol}
               onChange={updateRegister}
@@ -93,7 +99,7 @@ function RegisterPage({
             </select>
           </label>
 
-          <button className="primary-button" disabled={loading}>
+          <button type="submit" className="primary-button" disabled={loading}>
             {loading ? 'Registrando...' : 'Registrarme'}
           </button>
         </form>

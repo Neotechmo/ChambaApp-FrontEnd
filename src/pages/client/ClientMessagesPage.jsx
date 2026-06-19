@@ -131,6 +131,7 @@ function ClientMessagesPage() {
     selectedRef.current = conversation
     hasSelectedConversation.current = true
     setMessagesLoading(true)
+    setDraft('')
     setSelected(conversation)
   }
 
